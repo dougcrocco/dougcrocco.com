@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  html, body { margin:0; height:100%; background:#ffffff; -webkit-font-smoothing:antialiased; }
+  /* headings carry meaning only — every visual value stays on the element's own inline style */
+  h1, h2, h3, h4 { margin:0; padding:0; font-size:inherit; font-weight:inherit; font-style:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; font-family:inherit; }
+  a { color:#141414; text-decoration:none; }
+  a:hover { text-decoration:none; color:#000000; }
+  x-dc:not(:defined) [data-live-layer] { display:none !important; }
+  /* iPadOS long-press picks up images/links and drags the layout: block it */
+  html, body { overflow-x:hidden; overscroll-behavior:none; }
+  img, a, button, svg, video { -webkit-user-drag:none; user-drag:none; }
+  img, video { -webkit-touch-callout:none; }
+
+  [data-r~="taphalf"], [data-r~="fullarrow"] { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+  /* ---- breakpoint ladder: 1024 / 900 / 820 / 700 / 460 ----
+     The single-image frame steps down in even 20px increments so artwork scales
+     smoothly across the breaks instead of jumping. Frame height is the one number
+     that governs image size; the side arrows read from the same expression. */
+  @media only screen and (max-width: 1024px) {
+    [data-r~="feature"] { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+    [data-r~="arrowgut"] { height: min(calc(100dvh - 140px), 84vh) !important; }
+  }
+  @media only screen and (max-width: 900px) {
+    [data-r~="galcols"] { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+    [data-r~="venuebox"] { height: 260px !important; }
+    [data-r~="arrowgut"] { height: min(calc(100dvh - 160px), 82vh) !important; }
+  }
+  /* at 820 the side arrows give way to the row beneath the caption */
+  @media only screen and (min-width: 821px) {
+    [data-r~="fullnum"] { display:none !important; }
+  }
+  @media only screen and (max-width: 820px) {
+    [data-r~="excols"] { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 0 18px !important; }
+    [data-r~="fullarrow"] { display:none !important; }
+    [data-r~="fullnum"] { margin-top:14px !important; gap:30px !important; }
+    [data-r~="fullnum"] > div { font-size:15px !important; }
+    [data-r~="arrowgut"] { height: min(calc(100dvh - 180px), 80vh) !important; }
+    [data-r~="workarrow"] { display:none !important; }
+    [data-r~="worknum"] { display:flex !important; margin-top:14px !important; gap:30px !important; }
+    [data-r~="worknum"] > div { font-size:15px !important; }
+    [data-r~="workrow"] { gap:0 !important; padding-left:18px !important; padding-right:18px !important; }
+    [data-r~="workcap"] { padding:0 18px 24px !important; }
+  }
+  @media only screen and (max-width: 768px) {
+    [data-r~="feature"], [data-r~="c2"] { grid-template-columns: minmax(0,1fr) !important; gap: 26px !important; }
+    [data-r~="galcols"] { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 0 14px !important; }
+    [data-r~="feature"] > *:first-child { grid-column: auto !important; }
+    [data-r~="infophoto"] { opacity: .22 !important; }
+    /* stacked: portrait and the contact details side by side, bio and form beneath */
+    [data-r~="infogrid"] { grid-template-columns: 210px minmax(0,1fr) !important; grid-template-areas: 'p side' 'bio bio' !important; gap: 0 26px !important; }
+    [data-r~="infoside"] { max-width: none !important; }
+    [data-r~="infoportrait"] { width: 210px !important; }
+    [data-r~="infobio"] { margin-top: 30px !important; }
+  }
+  @media only screen and (max-width: 700px) {
+    [data-r~="artistcols"] { column-count: 2 !important; }
+    /* on phone the 4:5 video frame is governed by width, not the frame height */
+    [data-r~="workvid"] { width: 100% !important; height: auto !important; max-height: none !important; }
+    [data-r~="navrow"] { grid-template-columns: minmax(0,1fr) !important; gap: 4px !important; }
+    [data-r~="homenav"] { font-size: 26px !important; }
+    [data-r~="menuitem"] { font-size: 24px !important; }
+    [data-r~="heromenu"] { width: 100% !important; margin-left: 0 !important; padding-top: 90px !important; }
+    [data-r~="gut"], [data-r~="arrowgut"] { padding-left:18px !important; padding-right:18px !important; }
+    /* the bleed must always equal the current gutter */
+    [data-r~="exbleed"] { margin-left: -18px !important; margin-right: -18px !important; }
+    [data-r~="exbar"] { margin-left: -18px !important; margin-right: -18px !important; padding-left: 18px !important; padding-right: 28px !important; height: 54px !important; }
+    [data-r~="flushbar"] { margin-left: 0 !important; margin-right: 0 !important; }
+    [data-r~="arrowgut"] { height: min(calc(100dvh - 200px), 78vh) !important; }
+    [data-r~="fullpad"] { min-height:calc(100dvh - 40px) !important; padding-bottom:20px !important; }
+    [data-r~="fullcap"] { padding-top:30px !important; height:auto !important; }
+    [data-r~="fullnum"] { margin-top:22px !important; }
+    [data-r~="w2"] { gap: 0 14px !important; }
+    [data-r~="navlinks"] { display: none !important; }
+    [data-r~="navburger"] { display: flex !important; }
+    /* the filter row is the only part of a section bar that can give way: it keeps the
+       wordmark whole and swipes sideways when the four labels can't fit the viewport,
+       instead of pushing the whole view off-screen */
+    [data-r~="exbar"] { gap: 16px !important; }
+    /* section bars carry filters as well as the mark, so on phone they use DC and give the
+       ~100px back to the labels; the sticky home mark keeps the full name */
+    [data-r~="exbar"]:not([data-r~="homebar"]) [data-r~="markfull"] { display: none !important; }
+    [data-r~="exbar"]:not([data-r~="homebar"]) [data-r~="markshort"] { display: inline !important; }
+    [data-r~="exfilters"] { flex: 1 1 auto !important; min-width: 0 !important; justify-content: flex-end !important; gap: 16px !important; overflow-x: auto !important; scrollbar-width: none; }
+    [data-r~="exbar"] > button:first-child { flex: 0 0 auto !important; }
+    /* the full name stays the home mark at every width */
+    [data-r~="markfull"] { display: inline !important; }
+    [data-r~="markshort"] { display: none !important; }
+  }
+  @media only screen and (max-width: 460px) {
+    [data-r~="venuebox"] { height: 220px !important; }
+    [data-r~="arrowgut"] { height: min(calc(100dvh - 220px), 76vh) !important; }
+  }
+  /* below ~560 the side column can no longer hold the details: stack it */
+  @media only screen and (max-width: 560px) {
+    [data-r~="infogrid"] { grid-template-columns: minmax(0,1fr) !important; grid-template-areas: 'p' 'side' 'bio' !important; gap: 26px 0 !important; }
+  }
+  /* search results hold three columns at every width */
+  @media only screen and (max-width: 560px) {
+    [data-r~="searchcols"] { gap: 18px 10px !important; }
+  }
+  ::-webkit-scrollbar { width:0; height:0; }
+  * { scrollbar-width:none; -ms-overflow-style:none; }
+</style>
+<title>Doug Crocco</title>
+<meta name="description" content="Drawings, prints and video by Doug Crocco. Colored pencil work made over two decades in Los Angeles, with exhibitions, press and an archive of works by series, media and year.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Doug Crocco">
+<meta property="og:title" content="Doug Crocco">
+<meta property="og:description" content="Drawings, prints and video. Colored pencil work made over two decades in Los Angeles.">
+<meta property="og:image" content="https://allart.la/artwork/uploads/2013/09/USA-Doug-Crocco.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Doug Crocco">
+<meta name="twitter:description" content="Drawings, prints and video. Colored pencil work made over two decades in Los Angeles.">
+<meta name="twitter:image" content="https://allart.la/artwork/uploads/2013/09/USA-Doug-Crocco.jpg">
+<meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Julius+Sans+One&family=Raleway:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="./works-data.js"></script>
+</helmet>
+
+<div role="main" style="position:fixed;inset:0;background:#ffffff;color:#141414;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif;overflow:hidden">
+
+  <h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0">{{ pageHeading }}</h1>
+
+  <sc-if value="{{ vHome }}" hint-placeholder-val="{{ true }}">
+    <div ref="{{ homeScrollRef }}" data-live-layer style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overflow-x:hidden">
+      <div data-r="vhero" style="position:relative;min-height:100dvh;padding:0 44px 40px;box-sizing:border-box;background:#000000;color:#ffffff;overflow:hidden">
+        <video ref="{{ heroVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" poster="./hero-still.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;z-index:0"></video>
+        <div data-r="heromenu" style="position:relative;z-index:1;padding-top:100px;width:min(46%,560px);margin-left:auto">
+          <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+            <div data-r="homenav" style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:30px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff">Doug Crocco</div>
+          </div>
+          <div style="display:flex;flex-direction:column;padding-top:0">
+            <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+              <button type="button" onClick="{{ toExhibits }}" data-r="homenav menuitem" style="background:none;border:none;padding:0;border-radius:0;color:#ffffff;font:inherit;cursor:pointer;display:block;text-align:left;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase" style-focus="outline:1px dotted currentColor;outline-offset:4px">Exhibits</button>
+            </div>
+            <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+              <button type="button" onClick="{{ toWorks }}" data-r="homenav menuitem" style="background:none;border:none;padding:0;border-radius:0;color:#ffffff;font:inherit;cursor:pointer;display:block;text-align:left;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase" style-focus="outline:1px dotted currentColor;outline-offset:4px">Works</button>
+            </div>
+            <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+              <button type="button" onClick="{{ toNews }}" data-r="homenav menuitem" style="background:none;border:none;padding:0;border-radius:0;color:#ffffff;font:inherit;cursor:pointer;display:block;text-align:left;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase" style-focus="outline:1px dotted currentColor;outline-offset:4px">News</button>
+            </div>
+            <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+              <button type="button" onClick="{{ toInfo }}" data-r="homenav menuitem" style="background:none;border:none;padding:0;border-radius:0;color:#ffffff;font:inherit;cursor:pointer;display:block;text-align:left;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase" style-focus="outline:1px dotted currentColor;outline-offset:4px">Info</button>
+            </div>
+            <div data-r="navrow" style="padding:14px 0;">
+              <button type="button" onClick="{{ toSearch }}" data-r="homenav menuitem" style="background:none;border:none;padding:0;border-radius:0;color:#ffffff;font:inherit;cursor:pointer;display:block;text-align:left;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase" style-focus="outline:1px dotted currentColor;outline-offset:4px">Search</button>
+            </div>
+          </div>
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#ffffff;padding:40px 0 0">{{ heroCaption }}</div>
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);padding:5px 0 0">{{ heroMeta }}</div>
+        </div>
+      </div>
+
+      <div style="background:#000000;padding:36px 0 54px">
+        <div data-r="exbar flushbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;background:#000000">
+          <button type="button" onClick="{{ toExhibits }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#ffffff" style-hover="opacity:.65" style-focus="outline:1px dotted rgba(255,255,255,.6);outline-offset:4px">Recent exhibits</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:2px">
+          <sc-for list="{{ homeExhibits }}" as="e" hint-placeholder-count="4">
+            <a href="{{ e.href }}" aria-label="{{ e.label }}" onClick="{{ e.open }}" style="{{ e.wrapStyle }}">
+              <div style="{{ e.plateStyle }}">
+                <img ref="{{ e.imgRef }}" alt="{{ e.title }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+                <div style="{{ e.capStyle }}">
+                  <h3 style="{{ e.titleStyle }}">{{ e.title }}</h3>
+                  <div style="{{ e.metaStyle }}">{{ e.overlayMeta }}</div>
+                </div>
+              </div>
+            </a>
+          </sc-for>
+        </div>
+        <div data-r="gut" style="display:flex;justify-content:center;padding:40px 44px 0">
+          <button type="button" onClick="{{ toExhibits }}" style="background:none;border:none;padding:0 0 4px;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8);border-bottom:1px solid rgba(255,255,255,.45)" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:6px">See all exhibitions</button>
+        </div>
+      </div>
+
+      <div data-r="exbar flushbar homebar" style="position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;background:#f6f5f2;border-bottom:1px dotted rgba(20,20,20,.22)">
+        <button type="button" onClick="{{ toTop }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#141414" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="navlinks" style="display:flex;gap:22px">
+          <button type="button" onClick="{{ toExhibits }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#6e6e72" style-hover="color:#141414" style-focus="color:#141414;outline:1px dotted currentColor;outline-offset:3px">Exhibits</button>
+          <button type="button" onClick="{{ toWorks }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#6e6e72" style-hover="color:#141414" style-focus="color:#141414;outline:1px dotted currentColor;outline-offset:3px">Works</button>
+          <button type="button" onClick="{{ toNews }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#6e6e72" style-hover="color:#141414" style-focus="color:#141414;outline:1px dotted currentColor;outline-offset:3px">News</button>
+          <button type="button" onClick="{{ toSearch }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#141414" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:3px">Search</button>
+        </div>
+        <button type="button" data-r="navburger" onClick="{{ toggleMenu }}" aria-label="Menu" aria-expanded="{{ menuOpen }}" style="display:none;background:none;border:none;padding:0;border-radius:0;cursor:pointer;width:34px;height:34px;flex-direction:column;align-items:flex-end;justify-content:center;gap:5px" style-focus="outline:1px dotted currentColor;outline-offset:4px">
+          <span style="width:22px;height:1px;background:#141414"></span>
+          <span style="width:22px;height:1px;background:#141414"></span>
+          <span style="width:22px;height:1px;background:#141414"></span>
+        </button>
+      </div>
+
+      <div ref="{{ infoAnchorRef }}" data-r="gut" style="position:relative;padding:34px 44px 34px">
+        <img data-r="infophoto" ref="{{ infoBgRefHome }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;z-index:0;pointer-events:none">
+        <div data-r="infogrid" style="position:relative;z-index:1;display:grid;grid-template-columns:minmax(220px,360px) minmax(0,1fr);grid-template-areas:'p side' 'bio bio';gap:0 56px;max-width:1500px;align-items:stretch">
+          <div data-r="infoportrait" style="grid-area:p;width:100%;max-width:360px">
+          <div style="background:#f2f1ee">
+            <img ref="{{ portraitRef2 }}" alt="Doug Crocco" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+          </div>
+        </div>
+          <div data-r="infoside" style="grid-area:side;align-self:stretch;width:100%;max-width:420px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;gap:30px;padding:20px 0">
+          <div data-r="infoform" style="width:100%;max-width:400px">
+            <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:18px">Enquire</div>
+            <sc-if value="{{ hasEnquiry }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6e6e72;padding-bottom:16px;margin-top:-4px">Enquiring about <span style="color:#1f1f21">{{ enquiryWork }}</span></div>
+            </sc-if>
+            <sc-if value="{{ contactSent }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.7;color:#1f1f21">Thank you — your note is on its way. I will be in touch shortly.</div>
+            </sc-if>
+            <sc-if value="{{ contactIdle }}" hint-placeholder-val="{{ true }}">
+            <form onSubmit="{{ onContactSubmit }}" style="display:flex;flex-direction:column;gap:22px">
+              <input type="text" name="website" tabIndex="{{ -1 }}" autoComplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+              <div>
+                <label for="dc-email" style="display:block;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:#6e6e72;padding-bottom:6px">Your email</label>
+                <input id="dc-email" type="email" name="email" placeholder="Your email" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;color:#3c3c3d;width:100%;box-sizing:border-box;padding:0 0 9px;border:none;border-bottom:1px solid rgba(20,20,20,.32);background:transparent;border-radius:0;outline:none">
+              </div>
+              <div>
+                <label for="dc-message" style="display:block;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:#6e6e72;padding-bottom:6px">Message</label>
+                <textarea id="dc-message" ref="{{ msgRef }}" name="message" rows="3" placeholder="Message" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#3c3c3d;width:100%;box-sizing:border-box;padding:0 0 9px;border:none;border-bottom:1px solid rgba(20,20,20,.32);background:transparent;border-radius:0;outline:none;resize:vertical"></textarea>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:20px">
+                <button type="submit" style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#141414;background:none;border:none;border-bottom:1px solid rgba(20,20,20,.45);padding:0 0 3px;cursor:pointer;border-radius:0">{{ sendLabel }}</button>
+              </div>
+            </form>
+            </sc-if>
+            <sc-if value="{{ contactPending }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;color:#6e6e72">Sending…</div>
+            </sc-if>
+            <div style="margin-top:30px;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.7;color:#3c3c3d">
+              <div style="font-weight:500;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#6e6e72;padding-bottom:3px">Email</div>
+              <div><a href="mailto:doug@dougcrocco.com">doug@dougcrocco.com</a></div>
+            </div>
+          </div>
+          </div>
+          <div data-r="infobio" style="grid-area:bio;margin-top:44px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:17px;line-height:1.72;letter-spacing:.004em;color:#1f1f21;max-width:none;text-wrap:pretty">Doug Crocco is an artist and curator based in Los Angeles, California. He has exhibited in New York, Los Angeles, Palm Beach, Miami, Boston, and Melbourne. He received his MFA from Claremont Graduate University in 2004. From 2015 to 2020 he was owner and director of the project space Big Pictures Los Angeles. Prior to that he published <a href="https://www.cult2vader.com" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px solid rgba(20,20,20,.35)" style-hover="border-bottom-color:#141414">cult2vader</a>, a curated image bank of contemporary art and culture. He is currently producing new artworks, and spending time between Palm Beach, Los Angeles, and Mexico City working on new projects.</div>
+        </div>
+      </div>
+
+
+      <div data-r="c2 gut" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:80px;max-width:1500px;padding:86px 44px 0">
+        <div style="display:flex;flex-direction:column;gap:44px">
+          <div>
+            <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:16px">Education</div>
+            <div style="display:grid;grid-template-columns:46px minmax(0,1fr);gap:7px 16px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:13px;line-height:1.62;color:#414142">
+              <div style="color:#8c8c8e">2004</div><div style="text-wrap:pretty">Master of Fine Arts, Claremont Graduate University, Claremont, CA</div>
+              <div style="color:#8c8c8e">2001</div><div style="text-wrap:pretty">Graduate Studies, University of Miami, Coral Gables, FL</div>
+              <div style="color:#8c8c8e">2000</div><div style="text-wrap:pretty">Bachelor of Fine Arts, Florida State University, Tallahassee, FL</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:16px">Solo &amp; two person</div>
+            <div style="display:grid;grid-template-columns:46px minmax(0,1fr);gap:7px 16px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:13px;line-height:1.62;color:#414142">
+              <div style="color:#8c8c8e">2011</div><div style="text-wrap:pretty">Doug Crocco &amp; Aramis Gutierrez, Legalarts, Miami, FL</div>
+              <div style="color:#8c8c8e">2010</div><div style="text-wrap:pretty"><em>Entropy</em>, Art and Culture Center of Hollywood, FL</div>
+              <div style="color:#8c8c8e">2006</div><div style="text-wrap:pretty"><em>Drawing and Sculpture</em>, The Happy Lion, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2003</div><div style="text-wrap:pretty">MFA Thesis, East Gallery, Claremont Graduate University, CA</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:16px">Curatorial</div>
+            <div style="display:grid;grid-template-columns:46px minmax(0,1fr);gap:7px 16px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:13px;line-height:1.62;color:#414142">
+              <div style="color:#8c8c8e">2026</div><div style="text-wrap:pretty"><em>Death is a Door</em>, CC Jasper, New York, NY</div>
+              <div style="color:#8c8c8e">2026</div><div style="text-wrap:pretty"><em>The Come Up</em>, SADE, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>Holding Space</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>Flat Earth Society</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>I Have Always Imagined That Paradise Will Be a Kind of Library</em>, Blake and Vargas, Berlin</div>
+              <div style="color:#8c8c8e">2018</div><div style="text-wrap:pretty"><em>Transmutation</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><em>Staring at The Sun</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><em>Polaroid Black</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2016</div><div style="text-wrap:pretty"><em>Slamdance DIG 2</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2015</div><div style="text-wrap:pretty"><em>Slamdance DIG</em>, Big Pictures Los Angeles</div>
+              <div style="color:#8c8c8e">2012</div><div style="text-wrap:pretty"><em>NeoNatural</em>, Steve Turner Contemporary, Los Angeles, CA</div>
+            </div>
+            <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.75;color:#4a4a4d;margin-top:16px;max-width:52ch;text-wrap:pretty">Big Pictures Los Angeles was a project space in mid-city Los Angeles, founded in 2014 to show underserved mid-career artists, present new forms of digital media, and collaborate with artists in Miami and New York. It was part of a cluster of galleries that opened on Washington Blvd around 2015 — Hilde, Kamra International, Park View, Kristina Kite, Ochi Projects, Shoot the Lobster, Michael Thibault and The Underground Museum. It closed in 2020. Today the program carries on as curatorial projects at spaces around the world.</div>
+            <div style="margin-top:14px">
+              <a href="https://www.bigpictures.la" target="_blank" rel="noopener" style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid rgba(20,20,20,.45);padding-bottom:3px">bigpictures.la</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:44px">
+          <div>
+          <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:16px">Selected group exhibitions</div>
+          <div style="display:grid;grid-template-columns:46px minmax(0,1fr);gap:7px 16px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:13px;line-height:1.62;color:#414142">
+              <div style="color:#8c8c8e">2026</div><div style="text-wrap:pretty"><em>The Come Up</em>, SADE, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2024</div><div style="text-wrap:pretty"><em>Getting The Band Back Together</em>, Claremont Graduate University, CA</div>
+              <div style="color:#8c8c8e">2024</div><div style="text-wrap:pretty"><em>Hollywood Dream Bubble: Ed Ruscha’s Influence</em>, The Hole, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2021</div><div style="text-wrap:pretty"><em>The Design Shop</em>, Tile Blush, Miami, FL</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>Holding Space</em>, Big Pictures Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>I Wake Up and Write Down My Dreams</em>, No Gallery, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>Dreamhouse vs. Punk House</em>, Serious Topics, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2019</div><div style="text-wrap:pretty"><em>House Museum</em>, O-K-O-K, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2018</div><div style="text-wrap:pretty"><em>The Mushroom Show</em>, Craryville, NY</div>
+              <div style="color:#8c8c8e">2018</div><div style="text-wrap:pretty"><em>The Art Den</em>, Odd Ark, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><em>Pensive</em>, Tile Blush, Miami, FL</div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><em>The Cactus Show</em>, Craryville, NY</div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><em>Polaroid Black</em>, Big Pictures Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><em>DBA</em>, Big Pictures Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2015</div><div style="text-wrap:pretty"><em>Works of Paper II</em>, ACME, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2015</div><div style="text-wrap:pretty"><em>Sharp Contrast</em>, Palomar College, San Marcos, CA</div>
+              <div style="color:#8c8c8e">2013</div><div style="text-wrap:pretty"><em>Random Ceremonies</em>, The Sacred Door, Venice, CA</div>
+              <div style="color:#8c8c8e">2012</div><div style="text-wrap:pretty"><em>Things Fall Together</em>, Claremont Graduate University, CA</div>
+              <div style="color:#8c8c8e">2008</div><div style="text-wrap:pretty"><em>The Palm Beach Biennial</em>, Gavlak Gallery, Palm Beach, FL</div>
+              <div style="color:#8c8c8e">2007</div><div style="text-wrap:pretty"><em>Tugboat</em>, ACME at Domestic, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2007</div><div style="text-wrap:pretty"><em>Big Secret Cache</em>, Angstrom Gallery, Los Angeles, CA</div>
+              <div style="color:#8c8c8e">2005</div><div style="text-wrap:pretty"><em>L.A. Times</em>, Bernard Toale Gallery, Boston, MA</div>
+              <div style="color:#8c8c8e">2005</div><div style="text-wrap:pretty"><em>Pacific Lines</em>, Yancey Richardson Gallery, New York, NY</div>
+              <div style="color:#8c8c8e">2004</div><div style="text-wrap:pretty"><em>Supersonic</em>, Art Center College of Design, Pasadena, CA</div>
+              <div style="color:#8c8c8e">2003</div><div style="text-wrap:pretty"><em>Drawings from LA</em>, Uplands Gallery, Melbourne, Australia</div>
+              <div style="color:#8c8c8e">2002</div><div style="text-wrap:pretty"><em>Graduate School Show</em>, Lowe Art Museum, Miami, FL</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:16px">Awards &amp; residencies</div>
+            <div style="display:grid;grid-template-columns:46px minmax(0,1fr);gap:7px 16px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:13px;line-height:1.62;color:#414142">
+              <div style="color:#8c8c8e">2012</div><div style="text-wrap:pretty">The Adolf &amp; Esther Gottlieb Foundation, Grant Recipient</div>
+              <div style="color:#8c8c8e">2009</div><div style="text-wrap:pretty">The Armory Art Center, Palm Beach, FL, Artist in Residence</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#141414;padding-bottom:9px;border-bottom:1px dotted rgba(20,20,20,.32);margin-bottom:16px">Selected press</div>
+            <div style="display:grid;grid-template-columns:46px minmax(0,1fr);gap:7px 16px;font-family:Raleway,Helvetica,Arial,sans-serif;font-weight:400;font-size:13px;line-height:1.62;color:#414142">
+              <div style="color:#8c8c8e">2020</div><div style="text-wrap:pretty"><a href="./press/nyt-artist-run-galleries.html" style="border-bottom:1px solid rgba(20,20,20,.28)">Jori Finkel, “Artist-Run Galleries Defy the Mega-Dealer Trend in Los Angeles,” <em>The New York Times</em>, February 7</a></div>
+              <div style="color:#8c8c8e">2018</div><div style="text-wrap:pretty"><a href="./press/la-weekly-west-adams-gallery-row.html" style="border-bottom:1px solid rgba(20,20,20,.28)">Shana Nys Dambrot, “West Adams Is L.A.’s New Gallery Row,” <em>L.A. Weekly</em>, August 3</a></div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><a href="./press/staring-at-the-sun-review.html" style="border-bottom:1px solid rgba(20,20,20,.28)">David Pagel, “Where dread and beauty collide,” <em>Los Angeles Times</em>, September 11</a></div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><a href="./press/polaroid-black-la-weekly.html" style="border-bottom:1px solid rgba(20,20,20,.28)">Catherine Wagley, “5 Shows to See,” <em>L.A. Weekly</em>, April 26</a></div>
+              <div style="color:#8c8c8e">2017</div><div style="text-wrap:pretty"><a href="./press/waha-west-adams-art-scene.html" style="border-bottom:1px solid rgba(20,20,20,.28)">Lisa Raymond, “The Unassuming Art Scene in West Adams,” <em>WAHA Newsletter</em>, March</a></div>
+              <div style="color:#8c8c8e">2015</div><div style="text-wrap:pretty"><a href="./press/big-pictures-neighborhood-news.html" style="border-bottom:1px solid rgba(20,20,20,.28)">Renee Montgomery, “Big Pictures Los Angeles,” <em>The Neighborhood News</em>, August/September</a></div>
+              <div style="color:#8c8c8e">2008</div><div style="text-wrap:pretty"><a href="./press/palm-beach-post-art-connections.html" style="border-bottom:1px solid rgba(20,20,20,.28)">Christine Davis, “Art Connections,” <em>Palm Beach Post</em>, August 3</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-r="gut" style="padding:44px 44px 0">
+        <a href="./doug-crocco-cv.html" target="_blank" rel="noopener" style="display:inline-block;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#141414;border-bottom:1px solid rgba(20,20,20,.45);padding-bottom:3px">Download CV</a>
+      </div>
+
+      <div style="margin:60px 0 0;background:#f2f1ee;height:340px;overflow:hidden">
+        <img ref="{{ infoBgRef3 }}" alt="" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover">
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vWorks }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer data-r="gut" style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 44px 60px">
+      <div data-r="exbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0 -44px;background:#000000">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="exfilters" style="display:flex;gap:22px">
+          <sc-for list="{{ worksModes }}" as="m" hint-placeholder-count="3">
+            <button type="button" onClick="{{ m.pick }}" style="{{ m.style }}" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:3px">{{ m.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="max-width:62ch;padding:36px 0 44px">
+        <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:17px;line-height:1.7;color:#2a2a2b;text-wrap:pretty">{{ statement }}</div>
+      </div>
+      <div data-r="w2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 30px;align-items:start;max-width:1500px;padding:6px 0 0">
+        <sc-for list="{{ seriesColumns }}" as="col" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column;gap:30px">
+            <sc-for list="{{ col.items }}" as="s" hint-placeholder-count="3">
+              <div onClick="{{ s.open }}" style="cursor:pointer">
+                <sc-if value="{{ s.isStill }}" hint-placeholder-val="{{ true }}">
+                  <img ref="{{ s.imgRef }}" alt="{{ s.name }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+                </sc-if>
+                <sc-if value="{{ s.isPoster }}" hint-placeholder-val="{{ false }}">
+                  <video ref="{{ s.videoRef }}" poster="./hero-poster.jpg" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:left bottom;background:#000000"></video>
+                </sc-if>
+                <h3 style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;color:#2a2a2b;margin-top:9px">{{ s.name }}</h3>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vSeries }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer data-r="gut" onTouchStart="{{ seriesTouchStart }}" onTouchEnd="{{ seriesTouchEnd }}" style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 44px 60px;background:{{ sBg }};touch-action:pan-y">
+      <div data-r="exbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0 -44px;background:#000000">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="exfilters" style="display:flex;gap:22px">
+          <sc-for list="{{ worksModes }}" as="m" hint-placeholder-count="3">
+            <button type="button" onClick="{{ m.pick }}" style="{{ m.style }}" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:3px">{{ m.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:14px;padding:26px 0 26px;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:17px;color:{{ sInk }}">
+        <button type="button" onClick="{{ toWorks }}" style="background:none;border:none;padding:0;border-radius:0;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;color:{{ sInk3 }}" style-focus="outline:1px dotted currentColor;outline-offset:4px">Series</button>
+        <div style="color:{{ sRule }}">/</div>
+        <h2 style="color:{{ sInk }}">{{ curSeries }}</h2>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+          <button type="button" aria-label="Previous series" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ prevSeries }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;color:{{ sInk2 }}"><span style="display:block;transform:scaleX(-1)">→</span></button>
+          <button type="button" aria-label="Next series" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ nextSeries }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;color:{{ sInk2 }}">→</button>
+        </div>
+      </div>
+      <sc-if value="{{ hasSeriesNote }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:60ch;padding:0 0 38px">
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.7;color:{{ sInk2 }};text-wrap:pretty;white-space:pre-line">{{ seriesNote }}</div>
+        </div>
+      </sc-if>
+      <div data-r="w2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 30px;align-items:start;max-width:1500px;padding:6px 0 0">
+        <sc-for list="{{ seriesWorkColumns }}" as="col" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column;gap:30px">
+            <sc-for list="{{ col.items }}" as="w" hint-placeholder-count="4">
+              <a href="{{ w.href }}" aria-label="{{ w.label }}" onClick="{{ w.open }}" style="display:block;cursor:pointer;color:inherit;text-decoration:none">
+                <div style="background:{{ sBed }};box-shadow:{{ sShadow }}">
+                  <sc-if value="{{ w.isStill }}" hint-placeholder-val="{{ true }}">
+                    <img ref="{{ w.imgRef }}" alt="{{ w.title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+                  </sc-if>
+                  <sc-if value="{{ w.isPoster }}" hint-placeholder-val="{{ false }}">
+                    <video ref="{{ w.videoRef }}" poster="./hero-poster.jpg" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:left bottom;background:#000000"></video>
+                  </sc-if>
+                </div>
+                <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:{{ sInk }};padding-top:11px"><em>{{ w.title }}</em></div>
+                <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:{{ sInk3 }};padding-top:3px">{{ w.meta }}</div>
+              </a>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vOverview }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer data-r="gut" style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 44px 60px">
+      <div data-r="exbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0 -44px;background:#000000">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="exfilters" style="display:flex;gap:22px">
+          <sc-for list="{{ worksModes }}" as="m" hint-placeholder-count="3">
+            <button type="button" onClick="{{ m.pick }}" style="{{ m.style }}" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:3px">{{ m.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:26px;padding:30px 0 26px">
+        <sc-for list="{{ ovFilters }}" as="f" hint-placeholder-count="5">
+          <button type="button" onClick="{{ f.pick }}" style="{{ f.style }}" style-focus="outline:1px dotted currentColor;outline-offset:3px">{{ f.label }}</button>
+        </sc-for>
+      </div>
+      <div data-r="galcols" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 30px;align-items:start;max-width:1600px">
+        <sc-for list="{{ ovColumns }}" as="col" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:30px">
+            <sc-for list="{{ col.items }}" as="w" hint-placeholder-count="4">
+              <a href="{{ w.href }}" aria-label="{{ w.label }}" onClick="{{ w.open }}" style="display:block;cursor:pointer;color:inherit;text-decoration:none">
+                <div style="background:#f6f5f2">
+                  <sc-if value="{{ w.isStill }}" hint-placeholder-val="{{ true }}">
+                    <img ref="{{ w.imgRef }}" alt="{{ w.title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+                  </sc-if>
+                  <sc-if value="{{ w.isPoster }}" hint-placeholder-val="{{ false }}">
+                    <video ref="{{ w.videoRef }}" poster="./hero-poster.jpg" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:left bottom;background:#000000"></video>
+                  </sc-if>
+                </div>
+                <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:#1f1f21;padding-top:11px"><em>{{ w.title }}</em></div>
+                <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6e6e72;padding-top:3px">{{ w.meta }}</div>
+              </a>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vYear }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer style="position:absolute;inset:0;display:flex;flex-direction:column">
+      <div data-r="exbar flushbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0;background:#000000;flex:none">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="exfilters" style="display:flex;gap:22px">
+          <sc-for list="{{ worksModes }}" as="m" hint-placeholder-count="3">
+            <button type="button" onClick="{{ m.pick }}" style="{{ m.style }}" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:3px">{{ m.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="flex:none;height:14px"></div>
+      <div ref="{{ wallRef }}" style="{{ wallStyle }}">
+        <div style="{{ wallRowStyle }}">
+          <sc-for list="{{ yearGroups }}" as="g" hint-placeholder-count="6">
+            <div style="{{ yearColStyle }}">
+              <div style="{{ yearRowStyle }}">
+                <sc-for list="{{ g.items }}" as="w" hint-placeholder-count="3">
+                  <div onClick="{{ w.open }}" data-wall-label="{{ w.label }}" style="{{ w.style }}">
+                    <img ref="{{ w.imgRef }}" alt="{{ w.title }}" loading="lazy" decoding="async" style="{{ wallImgStyle }}">
+                  </div>
+                </sc-for>
+              </div>
+              <h2 style="{{ yearLabelStyle }}">{{ g.year }}</h2>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div data-r="gut" style="flex:none;padding:0 44px 46px;min-height:44px;display:flex;justify-content:center;text-align:center">
+        <div ref="{{ wallCapRef }}" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;color:#2a2a2b;opacity:0;transition:opacity .35s ease"></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vWork }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer style="position:fixed;inset:0;z-index:20;background:#ffffff;display:flex;flex-direction:column">
+      <div data-r="gut" style="display:flex;align-items:center;justify-content:space-between;gap:30px;padding:26px 44px 0;flex:none">
+        <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#4a4a4d;display:flex;align-items:center;min-height:44px">{{ wSeries }}</div>
+        <div style="display:flex;align-items:center;gap:26px">
+          <div onClick="{{ toContact }}" style="cursor:pointer;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:14px 4px;margin:-14px 0;display:flex;align-items:center;min-height:44px">Enquire</div>
+          <div onClick="{{ backToSeries }}" style="cursor:pointer;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:14px 0 14px 4px;margin:-14px 0;display:flex;align-items:center;min-height:44px">Close</div>
+        </div>
+      </div>
+      <div data-r="gut workrow" onTouchStart="{{ workTouchStart }}" onTouchEnd="{{ workTouchEnd }}" style="flex:1;min-height:0;display:flex;align-items:center;gap:30px;padding:26px 44px 18px;touch-action:pan-y">
+        <button type="button" aria-label="Previous work" style-focus="outline:1px dotted currentColor;outline-offset:3px" data-r="workarrow" onClick="{{ prevWork }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;position:relative;z-index:2;cursor:pointer;flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#6e6e72">❮</button>
+        <div style="flex:1;min-width:0;align-self:stretch;min-height:0;display:flex;align-items:center;justify-content:center">
+          <sc-if value="{{ wIsStill }}" hint-placeholder-val="{{ true }}">
+            <img ref="{{ wImgRef }}" alt="{{ wTitle }}" decoding="async" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;box-shadow:0 14px 34px rgba(20,20,20,.08), 0 2px 6px rgba(20,20,20,.05)">
+          </sc-if>
+          <sc-if value="{{ wIsVideo }}" hint-placeholder-val="{{ false }}">
+            <video data-r="workvid" ref="{{ wVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="max-width:100%;max-height:100%;height:100%;width:auto;aspect-ratio:4/5;object-fit:cover;object-position:left bottom;background:#000000;box-shadow:0 14px 34px rgba(20,20,20,.08), 0 2px 6px rgba(20,20,20,.06)"></video>
+          </sc-if>
+        </div>
+        <button type="button" aria-label="Next work" style-focus="outline:1px dotted currentColor;outline-offset:3px" data-r="workarrow" onClick="{{ nextWork }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;position:relative;z-index:2;cursor:pointer;flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#6e6e72">❯</button>
+      </div>
+      <div data-r="workcap" style="flex:none;padding:0 118px 30px;display:flex;flex-direction:column;align-items:center">
+        <div style="font-size:13px;line-height:1.7;opacity:.7;max-width:760px;text-align:center;text-wrap:pretty">{{ wCaption }}</div>
+        <div data-r="worknum" style="display:none;align-items:center;justify-content:center;gap:22px;margin-top:26px">
+          <button type="button" aria-label="Previous work" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ prevWork }}" data-r="taphalf" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;color:#9c9ca0">❮</button>
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;color:#9c9ca0">{{ wSlash }}</div>
+          <button type="button" aria-label="Next work" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ nextWork }}" data-r="taphalf" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;color:#9c9ca0">❯</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vExhibits }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer data-r="gut" style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 44px 60px;background:#000000">
+      <div data-r="exbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0 -44px;background:#000000">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="exfilters" style="display:flex;gap:22px">
+          <sc-for list="{{ exhFilters }}" as="f" hint-placeholder-count="4">
+            <button type="button" onClick="{{ f.pick }}" style="{{ f.styleLight }}" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:3px">{{ f.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div data-r="exbleed" style="position:relative;margin:0 -44px">
+      <div style="display:flex;flex-wrap:wrap;gap:2px;padding:0;margin:0">
+        <sc-for list="{{ exhibits }}" as="e" hint-placeholder-count="4">
+          <a data-r="extile" href="{{ e.href }}" aria-label="{{ e.label }}" onClick="{{ e.open }}" style="{{ e.wrapStyle }}">
+            <div data-r="explate" style="{{ e.plateStyle }}">
+              <img ref="{{ e.imgRef }}" alt="{{ e.title }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+              <div style="{{ e.capStyle }}">
+                <h3 style="{{ e.titleStyle }}">{{ e.title }}</h3>
+                <div style="{{ e.metaStyle }}">{{ e.overlayMeta }}</div>
+              </div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vExhibit }}" hint-placeholder-val="{{ true }}">
+    <div ref="{{ exScrollRef }}" data-live-layer style="{{ exScrollStyle }}">
+      <div data-r="exbar" style="display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0 -44px 26px;background:#000000">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div style="display:flex;align-items:center;gap:26px">
+          <button type="button" onClick="{{ toAllExhibits }}" style="{{ exBackStyle }}" style-hover="color:#ffffff">All exhibits</button>
+          <span style="width:1px;height:16px;background:rgba(255,255,255,.28)"></span>
+          <button type="button" aria-label="Previous exhibition" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ prevExhibit }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;color:rgba(255,255,255,.62);font-size:15px;line-height:1;width:26px;text-align:center"><span style="display:block;transform:scaleX(-1)">→</span></button>
+          <button type="button" aria-label="Next exhibition" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ nextExhibit }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;color:rgba(255,255,255,.62);font-size:15px;line-height:1;width:26px;text-align:center">→</button>
+        </div>
+      </div>
+        <div style="{{ exTitleBlockStyle }}">
+          <h2 style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:clamp(26px,2.4vw,42px);letter-spacing:.04em;text-transform:uppercase;line-height:1.16;font-weight:400;max-width:min(100%,44ch);text-wrap:balance;color:#1a1a1c">{{ exTitle }}</h2>
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:17px;font-weight:500;letter-spacing:.01em;color:#2e2e30;margin-top:14px">{{ exVenue }}</div>
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:13px;font-weight:400;letter-spacing:.03em;color:#6e6e72;margin-top:5px">{{ exPlaceDate }}</div>
+        </div>
+        <sc-if value="{{ exHasHero }}" hint-placeholder-val="{{ false }}">
+          <div onTouchStart="{{ heroTouchStart }}" onTouchEnd="{{ heroTouchEnd }}" style="{{ heroFrameStyle }}">
+            <img ref="{{ heroImgRef }}" alt="{{ exTitle }}" decoding="async" style="{{ heroImgStyle }}">
+          </div>
+        </sc-if>
+        <div ref="{{ pressBlockRef }}" style="max-width:1760px;padding:0 0 34px;min-height:0">
+          <div data-r="herocopy" style="{{ exCopyWrapStyle }}">
+            <div ref="{{ pressRowRef }}" onClick="{{ showInfo }}" style="order:0;cursor:pointer;overflow:hidden;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#6e6e72;padding-bottom:11px;border-bottom:1px solid rgba(20,20,20,.16);margin-bottom:20px">Press release</div>
+            <div data-r="venuecol" style="{{ exVenueColStyle }}" data-order="2">
+              <sc-for list="{{ exVenueImgs }}" as="v" hint-placeholder-count="1">
+                <div onClick="{{ v.open }}" style="{{ v.wrapStyle }}">
+                  <div data-r="venuebox" style="{{ v.boxStyle }}">
+                    <sc-for list="{{ v.layers }}" as="L" hint-placeholder-count="1">
+                      <img ref="{{ L.imgRef }}" alt="" loading="lazy" decoding="async" style="{{ L.style }}">
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ v.hasCaption }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#7a7a7e;padding:9px 0 0;text-align:center">{{ v.caption }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <sc-for list="{{ exCollapsedParas }}" as="p" hint-placeholder-count="2">
+              <div style="order:1;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.68;color:#3c3c3d;text-wrap:pretty;white-space:pre-line;margin:0 0 16px"><sc-for list="{{ p.parts }}" as="s" hint-placeholder-count="1"><sc-if value="{{ s.isLink }}" hint-placeholder-val="{{ false }}"><a href="{{ s.href }}" target="_blank" rel="noopener" style="color:#3c3c3d;text-decoration:none;border-bottom:1px solid rgba(20,20,20,.32)" style-hover="border-bottom-color:#141414">{{ s.text }}</a></sc-if><sc-if value="{{ s.plain }}" hint-placeholder-val="{{ true }}"><span>{{ s.text }}</span></sc-if></sc-for></div>
+            </sc-for>
+            <div style="clear:both"></div>
+            <sc-if value="{{ exCollapsedFade }}" hint-placeholder-val="{{ false }}">
+              <div style="{{ exFadeStyle }}"></div>
+            </sc-if>
+          </div>
+            <sc-if value="{{ exHasMore }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;margin-top:22px;max-width:1760px;order:2">
+                <div onClick="{{ toggleExText }}" style="cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exMoreLabel }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ exHasLinkRow }}" hint-placeholder-val="{{ false }}">
+            <div data-r="linkrow" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 30px;margin-top:18px;max-width:1760px;order:2">              <sc-if value="{{ exHasPress }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ exPressIsImage }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ openPress }}" style="cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exPressLabel }}</div>
+                </sc-if>
+                <sc-if value="{{ exPressIsPage }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ exPressUrl }}" target="_blank" rel="noopener" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;text-decoration:none;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exPressLabel }}</a>
+                </sc-if>
+              </sc-if>
+              <sc-if value="{{ exPress2IsImage }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ openPress2 }}" style="cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exPress2Label }}</div>
+              </sc-if>
+              <sc-if value="{{ exPress2IsPage }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ exPress2Url }}" target="_blank" rel="noopener" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;text-decoration:none;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exPress2Label }}</a>
+              </sc-if>
+              <sc-if value="{{ exHasPdf }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ exPdf }}" target="_blank" rel="noopener" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;text-decoration:none;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exPdfLabel }}</a>
+              </sc-if>
+              <sc-if value="{{ exHasUrl }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ exUrl }}" target="_blank" rel="noopener" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;text-decoration:none;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ exUrlLabel }}</a>
+              </sc-if>
+              <sc-if value="{{ exInfoHidden }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ showInfo }}" style="cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Show info</div>
+              </sc-if>
+            </div>
+            </sc-if>
+
+          <sc-if value="{{ exHasArtists }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:20px;order:3">
+              <div onClick="{{ toggleExArtists }}" style="{{ exArtistsHeadStyle }}" style-hover="color:#141414">{{ exArtistsHeadLabel }}</div>
+              <sc-if value="{{ exArtistsOpen }}" hint-placeholder-val="{{ true }}">
+                <div data-r="artistcols" style="margin-top:20px;column-count:3;column-gap:26px;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.4;color:#3c3c3d">
+                  <sc-for list="{{ exArtists }}" as="a" hint-placeholder-count="12">
+                    <div style="break-inside:avoid;padding-bottom:14px">{{ a.name }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <div style="border-bottom:1px dotted rgba(20,20,20,.45);margin-top:34px"></div>
+        </div>
+      <div ref="{{ viewsRowRef }}" style="display:flex;align-items:center;gap:30px;max-width:1760px;padding:0 0 20px">
+        <sc-if value="{{ exHasGalFilter }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:22px">
+            <sc-for list="{{ exGalTabs }}" as="t" hint-placeholder-count="2">
+              <button type="button" onClick="{{ t.pick }}" style="{{ t.style }}" style-hover="color:#1a1a1c" style-focus="outline:1px dotted currentColor;outline-offset:3px">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+          <div onClick="{{ setFullMode }}" style="{{ fullBtnStyle }}">
+            <svg width="17" height="13" viewBox="0 0 17 13" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="0.65" y="0.65" width="15.7" height="11.7"></rect></svg>
+          </div>
+          <div onClick="{{ setGridMode }}" style="{{ gridBtnStyle }}">
+            <svg width="17" height="13" viewBox="0 0 17 13" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="0.6" y="0.6" width="15.8" height="11.8"></rect><path d="M0.6 4.5H16.4M0.6 8.4H16.4M5.9 0.6V12.4M11.2 0.6V12.4"></path></svg>
+          </div>
+        </div>
+      </div>
+      <sc-if value="{{ exFullMode }}" hint-placeholder-val="{{ true }}">
+        <div data-r="fullpad" style="max-width:1760px;padding:0 0 56px">
+          <div style="position:relative">
+            <div ref="{{ fullSwipeRef }}" onClick="{{ backdropToGrid }}" data-r="arrowgut" style="padding:0 46px;display:flex;align-items:center;justify-content:center;height:min(calc(100dvh - 120px), 86vh)">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:100%;height:100%">
+                <img ref="{{ fullImgRef }}" alt="{{ fullCaption }}" decoding="async" style="{{ fullImgStyle }}">
+                <sc-if value="{{ fullMissing }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#9c9ca0">Image unavailable</div>
+                </sc-if>
+                <div data-r="fullcap" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6b6b6d;text-align:center;max-width:min(80ch,100%);padding-top:24px;height:39px;flex:none">{{ fullCaption }}</div>
+              </div>
+            </div>
+            <button type="button" aria-label="Previous image" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ prevFull }}" data-r="fullarrow" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;position:absolute;left:0;top:calc(min(calc(100dvh - 120px), 86vh) / 2);transform:translateY(-50%);z-index:2;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#6e6e72">❮</button>
+            <button type="button" aria-label="Next image" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ nextFull }}" data-r="fullarrow" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;position:absolute;right:0;top:calc(min(calc(100dvh - 120px), 86vh) / 2);transform:translateY(-50%);z-index:2;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#6e6e72">❯</button>
+          </div>
+          <div data-r="fullnum" style="display:flex;align-items:center;justify-content:center;gap:22px;margin-top:26px">
+            <button type="button" aria-label="Previous image" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ prevFull }}" data-r="taphalf" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;color:#9c9ca0">❮</button>
+            <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;color:#9c9ca0">{{ fullCount }}</div>
+            <button type="button" aria-label="Next image" style-focus="outline:1px dotted currentColor;outline-offset:3px" onClick="{{ nextFull }}" data-r="taphalf" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;color:#9c9ca0">❯</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ exGridMode }}" hint-placeholder-val="{{ false }}">
+      <div ref="{{ exGridRef }}" data-r="excols" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 22px;align-items:start;max-width:1760px">
+        <sc-for list="{{ exColumns }}" as="col" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <sc-for list="{{ col.items }}" as="g" hint-placeholder-count="3">
+              <div onClick="{{ g.open }}" style="cursor:pointer">
+                <div style="{{ g.boxStyle }}">
+                  <sc-if value="{{ g.missing }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9c9ca0">Image unavailable</div>
+                  </sc-if>
+                  <img ref="{{ g.imgRef }}" alt="{{ g.caption }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+                </div>
+                <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#6b6b6d;padding:9px 0 0;text-align:center">{{ g.artist }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vNews }}" hint-placeholder-val="{{ true }}">
+    <div data-live-layer data-r="gut" style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:0 44px 70px">
+      <div data-r="exbar" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:30px;height:64px;padding:0 60px 0 44px;margin:0 -44px;background:#000000">
+        <button type="button" onClick="{{ toHomeMenu }}" style="background:none;border:none;padding:0;border-radius:0;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;white-space:nowrap" style-hover="opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+        <div data-r="exfilters" style="display:flex;gap:22px">
+          <sc-for list="{{ newsFilters }}" as="f" hint-placeholder-count="3">
+            <button type="button" onClick="{{ f.pick }}" style="{{ f.styleLight }}" style-hover="color:#ffffff" style-focus="color:#ffffff;outline:1px dotted rgba(255,255,255,.6);outline-offset:3px">{{ f.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(352px,100%),1fr));gap:70px 60px;align-items:start;justify-items:center;max-width:1300px;margin:0 auto;padding:48px 0 0">
+        <sc-for list="{{ newsList }}" as="n" hint-placeholder-count="6">
+          <sc-if value="{{ n.isLink }}" hint-placeholder-val="{{ true }}">
+            <a href="{{ n.url }}" target="_blank" rel="noopener" title="{{ n.meta }}" aria-label="{{ n.meta }}" style="display:block;width:100%;max-width:572px;text-decoration:none;color:inherit">
+              <figure style="margin:0">
+                <img ref="{{ n.imgRef }}" alt="{{ n.alt }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+                <figcaption style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0">{{ n.meta }}</figcaption>
+              </figure>
+            </a>
+          </sc-if>
+          <sc-if value="{{ n.isView }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ n.openView }}" title="{{ n.meta }}" aria-label="{{ n.meta }}" style="display:block;width:100%;max-width:572px;padding:0;border:none;background:none;cursor:pointer;color:inherit" style-focus="outline:1px dotted rgba(255,255,255,.6);outline-offset:4px">
+              <img ref="{{ n.imgRef }}" alt="{{ n.alt }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+            </button>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vSearch }}" hint-placeholder-val="{{ false }}">
+    <div data-live-layer data-r="gut" onClick="{{ searchBackdrop }}" style="position:fixed;inset:0;z-index:24;overflow-y:auto;padding:86px 44px 80px;background:rgba(255,255,255,.9);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
+      <div style="position:sticky;top:0;z-index:3;display:flex;justify-content:flex-end;padding:0 0 6px">
+        <div onClick="{{ closeSearch }}" style="cursor:pointer;display:flex;align-items:center;color:#4a4a4d">
+          <span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:22px">×</span>
+        </div>
+      </div>
+      <form onSubmit="{{ onSearchSubmit }}" style="max-width:560px;padding:6px 0 0">
+        <input ref="{{ searchPageRef }}" type="search" placeholder="Search works, exhibitions, press" onInput="{{ onSearchInput }}" style="font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:20px;letter-spacing:.02em;color:#141414;width:100%;box-sizing:border-box;padding:0 0 11px;border:none;border-bottom:1px solid rgba(20,20,20,.4);background:transparent;border-radius:0;outline:none">
+      </form>
+      <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#7a7a7e;padding:16px 0 0">{{ searchStatus }}</div>
+          <div onClick="{{ searchBackdrop }}" style="padding:26px 0 0;display:flex;flex-direction:column;gap:32px">
+            <sc-for list="{{ searchGroups }}" as="g" hint-placeholder-count="0">
+              <div onClick="{{ searchBackdrop }}">
+                <h2 style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#7a7a7e;margin-bottom:14px">{{ g.label }}</h2>
+                <div data-r="searchcols" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 24px;align-items:start;max-width:1180px">
+                  <sc-for list="{{ g.items }}" as="r" hint-placeholder-count="0">
+                    <div onClick="{{ r.open }}" style="cursor:pointer">
+                      <div style="background:#f6f5f2">
+                        <img ref="{{ r.imgRef }}" alt="{{ r.title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto">
+                      </div>
+                      <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12.5px;line-height:1.4;color:#2a2a2b;padding:8px 0 0">{{ r.title }}</div>
+                      <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#7a7a7e;padding:2px 0 0">{{ r.meta }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+
+  <sc-if value="{{ vNewsView }}" hint-placeholder-val="{{ false }}">
+    <div data-live-layer style="position:fixed;inset:0;z-index:22;background:#ffffff;display:flex;flex-direction:column">
+      <div data-r="gut" style="display:flex;align-items:center;justify-content:space-between;gap:30px;padding:26px 44px 0;flex:none">
+        <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.5">{{ newsViewCaption }}</div>
+        <div onClick="{{ closeNewsView }}" style="cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid rgba(20,20,20,.45);padding-bottom:3px">Close</div>
+      </div>
+      <div data-r="gut" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:22px 44px 14px">
+        <sc-if value="{{ newsViewIsPdf }}" hint-placeholder-val="{{ false }}">
+          <iframe ref="{{ newsViewPdfRef }}" title="{{ newsViewCaption }}" style="width:100%;max-width:900px;height:calc(100dvh - 176px);border:1px solid rgba(20,20,20,.14);background:#ffffff"></iframe>
+        </sc-if>
+        <sc-if value="{{ newsViewIsImg }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ newsViewUrl }}" target="_blank" rel="noopener" style="display:block;max-height:100%">
+            <img ref="{{ newsViewImgRef }}" alt="{{ newsViewCaption }}" decoding="async" style="max-width:100%;max-height:calc(100dvh - 176px);width:auto;height:auto;object-fit:contain">
+          </a>
+        </sc-if>
+      </div>
+      <div data-r="gut" style="flex:none;display:flex;justify-content:center;padding:0 44px 34px">
+        <a href="{{ newsViewUrl }}" target="_blank" rel="noopener" style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;color:#4a4a4d;text-decoration:none;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">{{ newsViewLinkLabel }}</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ vVenue }}" hint-placeholder-val="{{ false }}">
+    <div data-live-layer style="position:fixed;inset:0;z-index:21;background:#ffffff;display:flex;flex-direction:column">
+      <div data-r="gut" style="display:flex;align-items:center;justify-content:space-between;gap:30px;padding:26px 44px 0;flex:none">
+        <div style="font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.5">{{ venueCaption }}</div>
+        <div onClick="{{ closeVenue }}" style="cursor:pointer;font-family:Raleway,Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid rgba(20,20,20,.45);padding-bottom:3px">Close</div>
+      </div>
+      <div onClick="{{ closeVenue }}" data-r="gut" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:26px 44px 44px;cursor:pointer">
+        <img ref="{{ venueImgRef }}" decoding="async" alt="{{ venueCaption }}" style="max-width:100%;max-height:calc(100dvh - 150px);width:auto;height:auto;object-fit:contain">
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="{{ navStyle }}">
+    <button type="button" onClick="{{ toHome }}" style="pointer-events:auto;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-size:16px;letter-spacing:.02em;white-space:nowrap" style-focus="outline:1px dotted currentColor;outline-offset:4px"><span data-r="markfull">Doug Crocco</span><span data-r="markshort" style="display:none">DC</span></button>
+    <div data-r="navlinks" role="navigation" aria-label="Sections" style="pointer-events:auto;display:flex;align-items:center;gap:30px;font-size:12px;letter-spacing:.16em;text-transform:uppercase">
+      <sc-if value="{{ showSearch }}" hint-placeholder-val="{{ false }}">
+        <button type="button" data-r="searchglass" onClick="{{ toSearch }}" title="Search" aria-label="Search" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;display:flex;align-items:center;opacity:.62" style-focus="outline:1px dotted currentColor;outline-offset:4px">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="5.7" cy="5.7" r="4.8"></circle><path d="M9.2 9.2L13.2 13.2"></path></svg>
+        </button>
+      </sc-if>
+      <button type="button" onClick="{{ toWorks }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;opacity:{{ oWorks }}" style-focus="outline:1px dotted currentColor;outline-offset:4px">Works</button>
+      <button type="button" onClick="{{ toExhibits }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;opacity:{{ oExhibits }}" style-focus="outline:1px dotted currentColor;outline-offset:4px">Exhibits</button>
+      <button type="button" onClick="{{ toNews }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;opacity:{{ oNews }}" style-focus="outline:1px dotted currentColor;outline-offset:4px">News</button>
+      <button type="button" onClick="{{ toInfo }}" style="background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;opacity:{{ oInfo }}" style-focus="outline:1px dotted currentColor;outline-offset:4px">Info</button>
+    </div>
+    <button type="button" data-r="navburger" onClick="{{ toggleMenu }}" aria-label="Menu" aria-expanded="{{ menuOpen }}" style="display:none;pointer-events:auto;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;width:34px;height:34px;flex-direction:column;align-items:flex-end;justify-content:center;gap:5px" style-focus="outline:1px dotted currentColor;outline-offset:4px">
+      <span style="width:22px;height:1px;background:currentColor"></span>
+      <span style="width:22px;height:1px;background:currentColor"></span>
+      <span style="width:22px;height:1px;background:currentColor"></span>
+    </button>
+  </div>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div data-live-layer style="position:fixed;inset:0;z-index:30;background:#000000;color:#ffffff;padding:0 44px 40px;box-sizing:border-box;overflow-y:auto">
+      <button type="button" onClick="{{ toggleMenu }}" aria-label="Close menu" style="position:absolute;top:26px;right:44px;z-index:2;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:22px;color:rgba(255,255,255,.7)" style-focus="outline:1px dotted currentColor;outline-offset:4px">×</button>
+      <div data-r="heromenu" style="padding-top:100px;width:min(46%,560px);margin-left:auto">
+        <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+          <button type="button" onClick="{{ toHomeMenu }}" data-r="homenav" style="display:block;text-align:left;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:30px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff" style-focus="outline:1px dotted currentColor;outline-offset:4px">Doug Crocco</button>
+        </div>
+        <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+          <button type="button" onClick="{{ toExhibitsMenu }}" data-r="homenav menuitem" style="display:block;text-align:left;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff" style-focus="outline:1px dotted currentColor;outline-offset:4px">Exhibits</button>
+        </div>
+        <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+          <button type="button" onClick="{{ toWorksMenu }}" data-r="homenav menuitem" style="display:block;text-align:left;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff" style-focus="outline:1px dotted currentColor;outline-offset:4px">Works</button>
+        </div>
+        <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+          <button type="button" onClick="{{ toNewsMenu }}" data-r="homenav menuitem" style="display:block;text-align:left;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff" style-focus="outline:1px dotted currentColor;outline-offset:4px">News</button>
+        </div>
+        <div data-r="navrow" style="padding:14px 0;border-bottom:1px dotted rgba(255,255,255,.3)">
+          <button type="button" onClick="{{ toInfoMenu }}" data-r="homenav menuitem" style="display:block;text-align:left;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff" style-focus="outline:1px dotted currentColor;outline-offset:4px">Info</button>
+        </div>
+        <div data-r="navrow" style="padding:14px 0">
+          <button type="button" onClick="{{ toSearchMenu }}" data-r="homenav menuitem" style="display:block;text-align:left;background:none;border:none;padding:0;border-radius:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;font-family:'Julius Sans One',Helvetica,Arial,sans-serif;font-size:28px;letter-spacing:.08em;text-transform:uppercase;color:#ffffff" style-focus="outline:1px dotted currentColor;outline-offset:4px">Search</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;darkGround&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;black&quot;,&quot;granite&quot;,&quot;gradient&quot;],&quot;default&quot;:&quot;black&quot;,&quot;tsType&quot;:&quot;'black' | 'granite' | 'gradient'&quot;,&quot;section&quot;:&quot;Series&quot;}}">
+const D = () => window.DC || { works: [], series: [], exhibits: [] };
+const PLATE = { position: 'relative', overflow: 'hidden', backgroundColor: '#0a0a0a', boxShadow: 'inset 0 0 0 1px rgba(20,20,20,.13)' };
+// shows whose tile image is light enough to want black type — by title, or "ink":"dark" in the data
+const DARK_TILE_TITLES = [];
+// home-scroll exhibit tile: same plate/scrim language as the exhibits page, one size down
+const homeTile = (self, e, full, st, mkRef) => {
+  const dark = e.ink === 'dark' || DARK_TILE_TITLES.indexOf(e.title) >= 0;
+  const city = e.city || '';
+  let venue = e.venue || '';
+  if (city && venue.length > city.length && venue.slice(-city.length) === city) {
+    venue = venue.slice(0, -city.length).replace(/[\s,]+$/, '');
+  }
+  return {
+    title: e.title,
+    href: '#/exhibit/' + self.slug(e.title),
+    label: [e.title, e.venue, e.city, e.y].filter(Boolean).join(', '),
+    open: ev => { if (ev && !ev.metaKey && !ev.ctrlKey && !ev.shiftKey) self.openExhibit(e.title); },
+    // only four tiles and they sit right under the hero — load them eagerly so the band
+    // never reads as an empty black stripe on a short viewport
+    imgRef: mkRef(e.img, null, true),
+    overlayMeta: [st.narrow ? venue : [venue, city].filter(Boolean).join(', '), e.y].filter(Boolean).join(' — '),
+    wrapStyle: { cursor: 'pointer', width: full ? '100%' : 'calc(50% - 1px)', color: 'inherit', textDecoration: 'none' },
+    // percentage padding rather than aspect-ratio: the image is absolutely positioned, so this
+    // keeps the plate from collapsing to zero height on older iPad Safari
+    plateStyle: Object.assign({ height: 0, paddingBottom: full ? '56.25%' : '112.5%' }, PLATE, { boxShadow: 'none', backgroundColor: '#0a0a0a' }),
+    capStyle: {
+      position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 2,
+      display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+      paddingTop: st.phone ? 38 : 58,
+      paddingBottom: st.phone ? (full ? 18 : 14) : (full ? 34 : 24),
+      paddingLeft: st.phone ? (full ? 18 : 14) : (full ? 34 : 26),
+      paddingRight: st.phone ? (full ? 18 : 14) : (full ? 34 : 26),
+      color: dark ? '#141414' : '#ffffff',
+      background: dark
+        ? 'linear-gradient(to top, rgba(255,255,255,.62) 0%, rgba(255,255,255,.4) 55%, rgba(255,255,255,0) 100%)'
+        : 'linear-gradient(to top, rgba(0,0,0,.6) 0%, rgba(0,0,0,.38) 55%, rgba(0,0,0,0) 100%)'
+    },
+    titleStyle: {
+      fontFamily: "'EB Garamond',Georgia,serif",
+      fontSize: st.narrow ? (full ? 22 : 17) : (st.phone ? (full ? 26 : 19) : (full ? 34 : 24)),
+      lineHeight: 1.15, letterSpacing: '-.01em', maxWidth: '26ch',
+      textWrap: 'balance', color: 'inherit', textShadow: '0 1px 3px rgba(0,0,0,.32)'
+    },
+    metaStyle: {
+      fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+      fontSize: st.phone ? 11 : 11.5, fontWeight: 500,
+      letterSpacing: st.phone ? '.12em' : '.18em',
+      textTransform: 'uppercase', marginTop: st.phone ? 7 : 9, opacity: 0.85
+    }
+  };
+};
+const artistOf = c => {
+  if (!c) return '';
+  const first = c.split(',')[0].trim();
+  if (/^installation view/i.test(first)) return 'Installation view';
+  return first;
+};
+const mkRef = (url, onFail, eager) => el => {
+  if (!el || !url) return;
+  // grids run long: let the browser defer everything below the fold. the year wall is
+  // excluded — its columns take their width from the loaded image, so a deferred image
+  // would collapse the run to zero width until it scrolled into view
+  if (!el.getAttribute('loading')) { el.loading = eager ? 'eager' : 'lazy'; el.decoding = 'async'; }
+  el.onload = () => { el.style.visibility = ''; };
+  // keep the element in the layout so nothing disappears from a gallery
+  el.onerror = () => { el.style.visibility = 'hidden'; if (onFail) onFail(url); };
+  if (el.getAttribute('src') === url) return;
+  el.style.visibility = '';
+  el.src = url;
+};
+
+class Component extends DCLogic {
+  state = { q: '', phone: (typeof window !== 'undefined' && window.innerWidth <= 700), narrow: (typeof window !== 'undefined' && window.innerWidth <= 460), wide: (typeof window !== 'undefined' ? window.innerWidth > 820 : true), colCount: 3, view: 'home', series: null, sel: 0, slide: 0, exhFilter: 'All', exhibit: null, exOpen: false, lb: '', lbC: '', venue: '', newsFilter: 'All', exMode: 'full', exFullU: '', exFullFor: '', exInfoHidden: false, navOff: 0, navSnap: false, broken: {} };
+  _ratios = {};
+  _probing = {};
+  markBroken = url => {
+    if (!url || this.state.broken[url]) return;
+    this.setState(s => { const b = Object.assign({}, s.broken); b[url] = 1; return { broken: b }; });
+  };
+
+  preload() {
+    const d = window.DC;
+    if (!d || this._preloaded) return;
+    this._preloaded = true;
+    // splash first — those are the images a visitor can step through immediately,
+    // and they used to queue behind every exhibit thumbnail
+    const first = [], rest = [];
+    (d.splash || []).forEach(s => { if (s.img) first.push(s.img); });
+    (d.exhibits || []).forEach(e => {
+      (e.venue_img || []).forEach(u => rest.push(u));
+      if (e.img) rest.push(e.img);
+    });
+    this.warm(first);
+    setTimeout(() => this.warm(rest), 400);
+  }
+
+  warmNear(i) {
+    const sl = (window.DC && window.DC.splash) || [];
+    if (!sl.length) return;
+    const at = ((i % sl.length) + sl.length) % sl.length;
+    this.warm([(sl[at] || {}).img]);
+  }
+
+  warm(urls) {
+    this._warmed = this._warmed || {};
+    (urls || []).forEach(u => {
+      if (!u || this._warmed[u]) return;
+      this._warmed[u] = 1;
+      const im = new Image();
+      im.decoding = 'async';
+      im.src = u;
+    });
+  }
+
+  stepSeries(n) {
+    const list = (window.DC && window.DC.series) || [];
+    if (!list.length) return;
+    const i = list.findIndex(x => x.name === this.state.series);
+    const next = list[((i < 0 ? 0 : i) + n + list.length) % list.length];
+    this.setState({ series: next.name, sel: 0 });
+  }
+
+  splitCols(items, n) {
+    const cols = []; for (let k = 0; k < n; k++) cols.push([]);
+    items.forEach((it, i) => cols[i % n].push(it));
+    return cols.map((items, i) => ({ items, i }));
+  }
+
+  colsFor(w) { return w <= 900 ? 2 : 3; }
+
+  // luminance of the top strip of an image, cached per url. null when the pixels
+  // can't be read (cross-origin without CORS) so the caller can fall back.
+  probeInk(url) {
+    if (!url) return;
+    this._ink = this._ink || {};
+    if (url in this._ink) return;
+    this._ink[url] = null;
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = () => {
+      try {
+        const w = 40, h = 40, c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        // object-fit:cover crops to the centre; sample the top ~22% across the width
+        const sh = Math.max(1, Math.round(im.naturalHeight * 0.22));
+        ctx.drawImage(im, 0, 0, im.naturalWidth, sh, 0, 0, w, h);
+        const px = ctx.getImageData(0, 0, w, h).data;
+        let sum = 0;
+        for (let i = 0; i < px.length; i += 4) sum += 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+        this._ink[url] = (sum / (px.length / 4)) > 150 ? 'dark' : 'light';
+      } catch (e) {
+        this._ink[url] = 'blocked';
+      }
+      this.forceUpdate();
+    };
+    im.onerror = () => { this._ink[url] = 'blocked'; };
+    im.src = url;
+  }
+
+  yearStyles() {
+    // the wall reads the same at every width — works hung in a line, scrolled sideways
+    const ph = false, RAL = 'Raleway,Helvetica,Arial,sans-serif';
+    const lbl = { fontFamily: RAL, fontSize: 12, fontWeight: 500, letterSpacing: '.14em', color: '#6e6e72' };
+    return {
+      wallStyle: ph
+        ? { flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', padding: '0 18px 40px' }
+        : { flex: 1, minHeight: 0, maxHeight: this.state.phone ? 'calc(100dvh - 150px)' : 'none', overflowX: 'auto', overflowY: 'hidden', padding: this.state.phone ? '0 18px 34px' : '0 44px 44px', WebkitOverflowScrolling: 'touch' },
+      wallRowStyle: ph
+        ? { display: 'flex', flexDirection: 'column', gap: 40 }
+        : { display: 'flex', alignItems: 'flex-end', gap: this.state.phone ? 22 : 34, height: '100%' },
+      yearColStyle: ph
+        ? { display: 'flex', flexDirection: 'column-reverse' }
+        : { display: 'flex', flexDirection: 'column', height: '100%', flex: 'none' },
+      yearRowStyle: ph
+        ? { display: 'flex', flexDirection: 'column', gap: 24 }
+        : { flex: 1, minHeight: 0, display: 'flex', alignItems: 'flex-end', gap: this.state.phone ? 10 : 14 },
+      wallImgStyle: ph
+        ? { display: 'block', width: '100%', height: 'auto' }
+        : { display: 'block', height: '100%', width: 'auto', maxWidth: 'none' },
+      yearLabelStyle: ph
+        ? Object.assign({ flex: 'none', margin: '0 0 16px', paddingBottom: 10, borderBottom: '1px solid rgba(20,20,20,.25)' }, lbl)
+        : Object.assign({ flex: 'none', marginTop: 20, paddingTop: 12, borderTop: '1px solid rgba(20,20,20,.25)' }, lbl)
+    };
+  }
+
+  slug(s) {
+    return String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  // state -> hash
+  hashFor(st) {
+    const sg = this.slug.bind(this), f = v => (v && v !== 'All' ? '/' + sg(v) : '');
+    switch (st.view) {
+      case 'works': return '#/works';
+      case 'series': return '#/works/' + sg(st.series);
+      case 'work': return '#/works/' + sg(st.series) + '/' + ((st.sel || 0) + 1);
+      case 'overview': return '#/overview' + f(st.ovFilter);
+      case 'year': return '#/year';
+      case 'exhibits': return '#/exhibits' + f(st.exhFilter);
+      case 'exhibit': return '#/exhibit/' + sg(st.exhibit) + (st.exMode === 'grid' ? '/grid' : '');
+      case 'news': return '#/news' + f(st.newsFilter);
+      case 'search': return '#/search' + (st.q ? '/' + encodeURIComponent(st.q) : '');
+      default: return '#/';
+    }
+  }
+
+  // hash -> state
+  stateForHash(h) {
+    const d = window.DC || {};
+    const parts = String(h || '').replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+    const head = (parts[0] || '').toLowerCase();
+    const pickFilter = (list, seg) => list.find(x => this.slug(x) === this.slug(seg)) || 'All';
+    if (!head) return { view: 'home' };
+    if (head === 'info') { setTimeout(() => this.scrollToInfo(14), 80); return { view: 'home' }; }
+    if (head === 'year') return { view: 'year' };
+    if (head === 'search') return { view: 'search', q: parts[1] || '' };
+    if (head === 'overview') return { view: 'overview', ovFilter: pickFilter(['All', 'Drawing', 'Print', 'Sculpture', 'Public', 'Video'], parts[1]) };
+    if (head === 'news') return { view: 'news', newsFilter: pickFilter(['All', 'Press', 'Event'], parts[1]) };
+    if (head === 'exhibits') return { view: 'exhibits', exhFilter: pickFilter(['All', 'Solo', 'Group', 'Curated'], parts[1]) };
+    if (head === 'exhibit') {
+      const e = (d.exhibits || []).find(x => this.slug(x.title) === this.slug(parts[1]));
+      if (!e) return { view: 'exhibits' };
+      return {
+        view: 'exhibit', exhibit: e.title, exMode: (parts[2] || '').toLowerCase() === 'grid' ? 'grid' : 'full',
+        exOpen: false, lb: '', lbC: '', venue: '', venueCap: '', exFullU: '', exFullFor: '', exInfoHidden: false, exGal: 'Works', exArtistsOpen: false
+      };
+    }
+    if (head === 'works') {
+      if (!parts[1]) return { view: 'works' };
+      const s = (d.series || []).find(x => this.slug(x.name) === this.slug(parts[1]));
+      if (!s) return { view: 'works' };
+      if (parts[2]) {
+        const len = (d.works || []).filter(w => w.s === s.name).length || 1;
+        const i = Math.min(Math.max(parseInt(parts[2], 10) || 1, 1), len) - 1;
+        return { view: 'work', series: s.name, workFrom: 'series', sel: i };
+      }
+      return { view: 'series', series: s.name, sel: 0 };
+    }
+    return { view: 'home' };
+  }
+
+  applyHash() {
+    const next = this.stateForHash(window.location.hash);
+    this._fromHash = true;
+    this._lastHash = window.location.hash || '#/';
+    this.setState(Object.assign({ lb: '', lbC: '', venue: '', venueCap: '' }, next), () => { this._fromHash = false; });
+  }
+
+  syncHash() {
+    const h = this.hashFor(this.state);
+    if (this._fromHash) { this._lastHash = h; return; }
+    const cur = window.location.hash || '#/';
+    if (h === cur || h === this._lastHash) return;
+    this._lastHash = h;
+    // replace rather than push for filter-only changes so Back skips them
+    const filterOnly = this._prevView === this.state.view && ['overview', 'news', 'exhibits', 'search'].indexOf(this.state.view) >= 0;
+    if (filterOnly) window.history.replaceState(null, '', h);
+    else window.location.hash = h;
+  }
+
+  // ---- head: one title, description, canonical and schema per view ----
+  headFor() {
+    const d = window.DC || {}, st = this.state;
+    const site = 'Doug Crocco';
+    const base = 'Drawings, prints and video. Colored pencil work made over two decades in Los Angeles.';
+    const abs = u => !u ? '' : (/^https?:/.test(u) ? u : 'https://dougcrocco.com/' + String(u).replace(/^\.\//, ''));
+    const ex = () => (d.exhibits || []).find(x => x.title === st.exhibit) || {};
+    const seriesWorks = () => (d.works || []).filter(w => w.s === st.series);
+    switch (st.view) {
+      case 'works': return { h: 'Works by series', t: 'Works by series | ' + site, desc: 'Colored pencil drawings, prints and video grouped into seven series.' };
+      case 'series': {
+        const s = (d.series || []).find(x => x.name === st.series) || {};
+        return { h: st.series + ' — works', t: st.series + ' | ' + site, desc: (s.note || base).slice(0, 180), img: abs(s.cover) };
+      }
+      case 'work': {
+        const w = seriesWorks()[st.sel] || {};
+        const meta = [w.y, w.m, w.d].filter(Boolean).join(', ');
+        return {
+          h: [w.t, w.y].filter(Boolean).join(', '),
+          t: [w.t, w.y].filter(Boolean).join(', ') + (w.s ? ' — ' + w.s : '') + ' | ' + site,
+          desc: [w.t, meta].filter(Boolean).join(' — '), img: abs(w.img), work: w
+        };
+      }
+      case 'overview': return { h: 'Works by medium', t: 'Works by medium | ' + site, desc: 'The full archive by medium — drawing, print, sculpture, public work and video.' };
+      case 'year': return { h: 'Works by year', t: 'Works by year | ' + site, desc: 'The archive in chronological order, 2003 to the present.' };
+      case 'exhibits': return { h: 'Exhibitions', t: 'Exhibitions | ' + site, desc: 'Solo, group and curated exhibitions in Los Angeles, New York, Miami, Palm Beach, Boston and Melbourne.' };
+      case 'exhibit': {
+        const e = ex();
+        return {
+          h: [e.title, e.venue, e.y].filter(Boolean).join(' — '),
+          t: e.title + ' — ' + [e.venue, e.city, e.y].filter(Boolean).join(', ') + ' | ' + site,
+          desc: (e.sum || (e.paras || [])[0] || base).slice(0, 200), img: abs(e.img), exhibit: e
+        };
+      }
+      case 'news': return { h: 'News and press', t: 'News and press | ' + site, desc: 'Reviews, features and exhibition notices.' };
+      case 'search': return { h: 'Search', t: 'Search | ' + site, desc: 'Search works, exhibitions and press.' };
+      default: return { h: site + ' — drawings, prints and video', t: site, desc: base };
+    }
+  }
+
+  syncHead() {
+    if (typeof document === 'undefined') return;
+    const h = this.headFor();
+    const img = h.img || 'https://allart.la/artwork/uploads/2013/09/USA-Doug-Crocco.jpg';
+    const url = window.location.origin + window.location.pathname + (window.location.hash || '');
+    document.title = h.t;
+    const set = (sel, attr, val) => {
+      let el = document.head.querySelector(sel);
+      if (!el) {
+        el = document.createElement(sel.indexOf('link') === 0 ? 'link' : 'meta');
+        const m = sel.match(/\[(name|property|rel)="([^"]+)"\]/);
+        if (m) el.setAttribute(m[1], m[2]);
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr, val);
+    };
+    set('meta[name="description"]', 'content', h.desc);
+    set('link[rel="canonical"]', 'href', url);
+    set('meta[property="og:title"]', 'content', h.t);
+    set('meta[property="og:description"]', 'content', h.desc);
+    set('meta[property="og:image"]', 'content', img);
+    set('meta[property="og:url"]', 'content', url);
+    set('meta[name="twitter:title"]', 'content', h.t);
+    set('meta[name="twitter:description"]', 'content', h.desc);
+    set('meta[name="twitter:image"]', 'content', img);
+
+    const person = {
+      '@context': 'https://schema.org', '@type': 'Person', name: 'Doug Crocco',
+      jobTitle: 'Artist and curator', url: 'https://dougcrocco.com/',
+      email: 'mailto:doug@dougcrocco.com', image: img,
+      address: { '@type': 'PostalAddress', addressLocality: 'Los Angeles', addressRegion: 'CA', addressCountry: 'US' },
+      alumniOf: { '@type': 'CollegeOrUniversity', name: 'Claremont Graduate University' }
+    };
+    const graph = [person];
+    if (h.work && h.work.t) {
+      graph.push({
+        '@context': 'https://schema.org', '@type': 'VisualArtwork', name: h.work.t,
+        creator: { '@type': 'Person', name: 'Doug Crocco' },
+        dateCreated: h.work.y ? String(h.work.y) : undefined,
+        artMedium: h.work.m || undefined, artform: h.work.k && h.work.k[0] ? h.work.k[0] : undefined,
+        artworkSurface: h.work.d || undefined, image: h.img || undefined, url: url,
+        isPartOf: h.work.s || undefined
+      });
+    }
+    if (h.exhibit && h.exhibit.title) {
+      graph.push({
+        '@context': 'https://schema.org', '@type': 'ExhibitionEvent', name: h.exhibit.title,
+        startDate: h.exhibit.y ? String(h.exhibit.y) : undefined, url: url, image: h.img || undefined,
+        description: h.desc,
+        location: { '@type': 'Place', name: h.exhibit.venue || undefined, address: h.exhibit.city || undefined }
+      });
+    }
+    let ld = document.head.querySelector('script[data-dc-schema]');
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.setAttribute('data-dc-schema', '1');
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify(graph.length === 1 ? graph[0] : graph);
+  }
+
+  componentDidUpdate() {
+    this.syncHash();
+    this.syncHead();
+    // the home layer remounts at the top, and no scroll event follows
+    if (this._prevView !== this.state.view && this.state.homePast) this.setState({ homePast: false });
+    this._prevView = this.state.view;
+  }
+
+  componentDidMount() {
+    if (typeof document !== 'undefined' && !document.documentElement.lang) document.documentElement.lang = 'en';
+    this.syncHead();
+    this._resize = () => {
+      const n = this.colsFor(window.innerWidth);
+      const p = window.innerWidth <= 700;
+      const nw = window.innerWidth <= 460;
+      if (nw !== this.state.narrow) this.setState({ narrow: nw });
+      const wd = window.innerWidth > 820;
+      if (n !== this.state.colCount || p !== this.state.phone || wd !== this.state.wide) this.setState({ colCount: n, phone: p, wide: wd });
+    };
+    this._resize();
+    window.addEventListener('resize', this._resize);
+    this._lastHash = window.location.hash || '#/';
+    if (window.DC) {
+      this.preload();
+      this.applyHash();
+    } else {
+      this._wait = setInterval(() => {
+        if (window.DC) { clearInterval(this._wait); this.preload(); this.applyHash(); this.forceUpdate(); }
+      }, 120);
+    }
+    this._hashNav = () => {
+      if ((window.location.hash || '#/') === this._lastHash) return;
+      this.applyHash();
+    };
+    if (window.__dcHash) window.removeEventListener('hashchange', window.__dcHash);
+    window.__dcHash = this._hashNav;
+    window.addEventListener('hashchange', this._hashNav);
+    this._venueFlip = setInterval(() => {
+      if (this.state.view !== 'exhibit') return;
+      // land the incoming frame at opacity 0 first, then fade it up on the next frame —
+      // with two images the value would otherwise never change and the transition never fire
+      this.setState(x => ({ venueIdx: (x.venueIdx || 0) + 1, venueFade: false }), () => {
+        this._venueRaf = requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ venueFade: true })));
+      });
+    }, 6000);
+    this._tick = setInterval(() => {
+      if (this.state.view === 'home') this.setState(s => ({ slide: s.slide + 1 }));
+    }, 5200);
+    this._key = e => {
+      if (this.state.searchOpen || this.state.view === 'search') {
+        if (e.key === 'Escape') this.setState(s => ({ searchOpen: false, view: s.view === 'search' ? 'home' : s.view }));
+        return;
+      }
+      if (this.state.venue) {
+        if (e.key === 'Escape') this.setState({ venue: '' });
+        return;
+      }
+      if (this.state.view === 'exhibit' && this.state.exMode === 'full') {
+        if (e.key === 'ArrowRight') this.stepFull(1);
+        if (e.key === 'ArrowLeft') this.stepFull(-1);
+        return;
+      }
+      if (this.state.view === 'work') {
+        if (e.key === 'ArrowRight') this.step(1);
+        if (e.key === 'ArrowLeft') this.step(-1);
+        if (e.key === 'Escape') this.setState({ view: this.state.workFrom || 'series' });
+        return;
+      }
+      if (this.state.view !== 'work') return;
+      if (e.key === 'ArrowRight') this.step(1);
+      if (e.key === 'ArrowLeft') this.step(-1);
+      if (e.key === 'Escape') this.setState({ view: 'series' });
+    };
+    if (window.__dcKey) window.removeEventListener('keydown', window.__dcKey);
+    window.__dcKey = this._key;
+    window.addEventListener('keydown', this._key);
+  }
+  componentWillUnmount() {
+    clearTimeout(this._ratioTick);
+    clearInterval(this._tick);
+    clearInterval(this._venueFlip); clearInterval(this._wait);
+    cancelAnimationFrame(this._venueRaf);
+    window.removeEventListener('keydown', this._key);
+    window.removeEventListener('resize', this._resize);
+    window.removeEventListener('hashchange', this._hashNav);
+  }
+
+  list() { return D().works.filter(w => w.s === this.state.series); }
+  step(n) {
+    const len = this.list().length || 1;
+    this.setState(s => ({ sel: (s.sel + n + len) % len }));
+  }
+  // light-ground work needs the detail page's lift on the series grid too
+  // an exhibit's `links` list turns the first mention of each name into an anchor
+  linkParts(text, links) {
+    const plain = t => ({ text: t, plain: true, isLink: false, href: '' });
+    if (!links || !links.length) return [plain(text)];
+    const parts = [], used = {};
+    let rest = String(text);
+    while (rest) {
+      let at = -1, hit = null;
+      links.forEach(L => {
+        if (used[L.t]) return;
+        const i = rest.indexOf(L.t);
+        if (i !== -1 && (at === -1 || i < at)) { at = i; hit = L; }
+      });
+      if (at === -1) { parts.push(plain(rest)); break; }
+      if (at > 0) parts.push(plain(rest.slice(0, at)));
+      parts.push({ text: hit.t, plain: false, isLink: true, href: hit.u });
+      used[hit.t] = 1;
+      rest = rest.slice(at + hit.t.length);
+    }
+    return parts;
+  }
+  shadowSeries(name) { return ['New Forms'].indexOf(name) !== -1; }
+  // shows whose works are shot on light ground get the same lift as New Forms
+  shadowShow(title) { return ['Drawing and Sculpture'].indexOf(title) !== -1; }
+  ground() { return this.props.darkGround || 'black'; }
+  groundBg() {
+    const g = this.ground();
+    if (g === 'granite') return '#2b2b2d';
+    if (g === 'gradient') return 'linear-gradient(#000000 0%, #1c1c1e 46%, #3a3a3d 100%)';
+    return '#000000';
+  }
+  // series shown on black — light-ground work that disappears on white
+  darkSeries(name) { return [].indexOf(name) !== -1; }
+  go(view) { return () => this.setState({ view }); }
+  // Info is a section of home, not a page of its own
+  scrollToInfo(tries) {
+    const sc = this._homeScroll, el = this._infoAnchor;
+    if (!sc || !el) { if ((tries || 0) > 0) setTimeout(() => this.scrollToInfo(tries - 1), 70); return; }
+    // the home layer holds two exbars — the black band's own header and the sticky one
+    // that locks over the content. Only the sticky one occludes, so measure that one.
+    const bar = [].slice.call(sc.querySelectorAll('[data-r~="exbar"]'))
+      .find(b => getComputedStyle(b).position === 'sticky');
+    // exactly the bar height: any more and the black band above peeks out beneath it
+    const lift = bar ? bar.getBoundingClientRect().height : 65;
+    sc.scrollTo({ top: Math.max(0, el.offsetTop - lift), behavior: 'smooth' });
+  }
+  goInfo(extra) {
+    this.setState(Object.assign({ view: 'home', menuOpen: false, searchOpen: false, enquiry: '', contactSent: '' }, extra || {}));
+    setTimeout(() => this.scrollToInfo(14), 60);
+  }
+  attachSwipe(el, onSwipe) {
+    if (!el || el._swipe) return;
+    el._swipe = true;
+    let x0 = 0, y0 = 0, t0 = 0, active = false;
+    el.addEventListener('touchstart', ev => {
+      const t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; t0 = Date.now(); active = true;
+    }, { passive: true });
+    el.addEventListener('touchend', ev => {
+      if (!active) return;
+      active = false;
+      const t = ev.changedTouches[0];
+      const dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Date.now() - t0 < 600 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+        el._swiped = true;
+        clearTimeout(el._swipedT);
+        el._swipedT = setTimeout(() => { el._swiped = false; }, 400);
+        onSwipe(dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+  }
+
+
+  openExhibit(title) {
+    this._enteredAt = Date.now();
+    this.setState({ view: 'exhibit', exhibit: title, exArtistsOpen: false, exOpen: false, lb: '', lbC: '', venue: '', venueCap: '', exMode: 'full', exGal: 'Works', venueIdx: 0, venueFade: true, exFullU: '', exFullFor: '', exInfoHidden: false, searchOpen: false });
+  }
+
+  setViewMode(mode) {
+    // clicking the mode you're already in shouldn't re-scroll the page
+    if ((this.state.exMode || 'full') === mode) return;
+    this._enteredAt = Date.now();
+    this.setState({ exMode: mode, exFullU: '', exFullFor: '' }, () => this.scrollTo(this._viewsRow, 26));
+  }
+
+
+  scrollTo(el, offset) {
+    const box = this._exScroll;
+    if (!box) return;
+    // measure against the scroller: offsetTop is relative to the nearest positioned
+    // ancestor, which reads 0 for anything inside a position:relative wrapper
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const target = el || this._viewsRow;
+      if (!target) return;
+      const delta = target.getBoundingClientRect().top - box.getBoundingClientRect().top;
+      const to = Math.max(0, box.scrollTop + delta - (offset || 0));
+      const from = box.scrollTop;
+      const dist = to - from;
+      // already essentially in place — a re-measuring glide here just bounces the page
+      if (Math.abs(dist) < 10) return;
+      const dur = 900;
+      const t0 = performance.now();
+      cancelAnimationFrame(this._glide);
+      const step = now => {
+        const p = Math.min(1, (now - t0) / dur);
+        // slow ease in and out, so the pull reads as deliberate
+        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+        // re-measure the destination every frame: images finishing above the target
+        // move it during the glide, which used to leave the landing short. Short hops
+        // keep their original target — re-measuring those fights the layout and jitters.
+        const live = Math.abs(dist) < 120 ? to
+          : Math.max(0, box.scrollTop + (target.getBoundingClientRect().top - box.getBoundingClientRect().top) - (offset || 0));
+        box.scrollTop = p < 1 ? (from + (live - from) * e) : live;
+        if (p < 1) this._glide = requestAnimationFrame(step);
+      };
+      this._glide = requestAnimationFrame(step);
+    }));
+  }
+
+  openFullAt(u) {
+    return () => {
+      this._enteredAt = Date.now();
+      this.setState({ exMode: 'full', exFullU: u, exFullFor: this.state.exhibit }, () => this.scrollTo(this._viewsRow, 26));
+    };
+  }
+
+  stepFull(n) {
+    const now = Date.now();
+    // a tap that opened this view can produce a delayed click on the arrow beneath the finger
+    if (this._enteredAt && now - this._enteredAt < 600) return;
+    if (this._lastStep && now - this._lastStep < 220) return;
+    this._lastStep = now;
+    const e = (window.DC ? window.DC.exhibits : []).find(x => x.title === this.state.exhibit);
+    const list = e && e.gal ? e.gal : [];
+    if (!list.length) return;
+    this.setState(st => {
+      const usable = st.exFullFor === st.exhibit ? st.exFullU : '';
+      const cur = usable ? list.findIndex(g => g.u === usable) : 0;
+      const next = list[((cur < 0 ? 0 : cur) + n + list.length) % list.length];
+      return { exFullU: next.u, exFullFor: st.exhibit };
+    });
+  }
+
+  stepExhibit(n) {
+    const all = window.DC ? window.DC.exhibits : [];
+    if (!all.length) return;
+    // stepping stays inside the filter the visitor arrived through
+    const f = this.state.exhFilter;
+    const scoped = (f && f !== 'All') ? all.filter(e => (e.kinds || []).indexOf(f) >= 0) : all;
+    const list = scoped.length ? scoped : all;
+    const i = list.findIndex(e => e.title === this.state.exhibit);
+    const next = list[((i < 0 ? 0 : i) + n + list.length) % list.length];
+    this.openExhibit(next.title);
+    const sc = document.querySelector('[data-live-layer]');
+    if (sc && sc.scrollTop) sc.scrollTop = 0;
+  }
+
+  renderVals() {
+    const d = D();
+    const st = this.state;
+    const view = st.view;
+    const ex = d.exhibits;
+    const slides = (d.splash && d.splash.length) ? d.splash : ex;
+    const si = slides.length ? st.slide % slides.length : 0;
+    const even = si % 2 === 0;
+    const prevI = slides.length ? (si - 1 + slides.length) % slides.length : 0;
+    const cur = slides[si] || {};
+
+    const seriesWorks = d.works.filter(w => w.s === st.series);
+    const w = seriesWorks[st.sel] || {};
+
+    const exhF = st.exhFilter;
+    const exhList = exhF === 'All' ? ex : ex.filter(e => e.kinds.indexOf(exhF) >= 0);
+    const cxI = ex.findIndex(e => e.title === st.exhibit);
+    const cx = ex[cxI] || {};
+    const collapseArtists = (cx.artists || []).length > 50;
+    // the nav only hides while you're inside an exhibit
+    const navHidden = view === 'exhibit' && !!st.exInfoHidden;
+    // the nav rides up in step with the scroll, capped at its own height
+    const navOff = view === 'exhibit' ? Math.max(0, Math.min(86, st.navOff || 0)) : 0;
+    // nav ink: dark type on white pages, and on light artwork; white on dark artwork
+    const navImg = view === 'home' ? (cur.img || '') : '';
+    if (navImg) this.probeInk(navImg);
+    const probed = this._ink && this._ink[navImg];
+    // shows whose top band is dark enough to need white type — matched on title so
+    // the list survives reordering
+    const WHITE_INK = /cat house|mushroom show|^dba$|polaroid black|tugboat|pensive|kind of library|hollywood dream bubble|works on paper/i;
+    const inkTitle = view === 'home' ? (cur.title || '') : '';
+    // per-image override for slides that share a title (the two Pensive frames)
+    const INK_BY_IMAGE = {
+      'artwork/uploads/2018/01/dmc-install-miami-shadow8.jpg': 'dark',
+      'artwork/uploads/2025/01/splash-3.jpg': 'dark'
+    };
+    const override = view === 'home'
+      ? (INK_BY_IMAGE[String(cur.img || '').replace(/^https?:\/\/[^/]+\//, '')] || null)
+      : null;
+    // past the hero the NAV sits on white content; the hero caption stays on the photograph,
+    // so it keeps the image-derived ink
+    const navOnWhite = view === 'home' && !!st.homePast;
+    const navInk = override ? override
+      : !navImg ? 'dark'
+      : (probed === 'dark' || probed === 'light') ? probed
+      : (WHITE_INK.test(inkTitle) ? 'light' : 'dark');
+    // search runs across works, exhibitions and press notes
+    const searchHits = (() => {
+      const q = (st.q || '').trim().toLowerCase();
+      if (!q) return { total: 0, groups: [] };
+      const has = (...parts) => parts.filter(Boolean).join(' ').toLowerCase().indexOf(q) >= 0;
+      const works = (d.works || []).filter(w => has(w.t, w.m, w.d, w.s, w.y));
+      const shows = ex.filter(e => has(e.title, e.venue, e.city, e.y, e.sum, (e.paras || []).join(' ')));
+      const notes = (d.news || []).filter(n => has(n.title, n.kind, n.y));
+      const groups = [];
+      if (shows.length) groups.push({ label: 'Exhibitions', items: shows.map(e => ({
+        title: e.title,
+        meta: [e.venue, e.city, e.y].filter(Boolean).join(' · '),
+        imgRef: mkRef(e.img, this.markBroken),
+        open: () => this.openExhibit(e.title)
+      })) });
+      if (works.length) groups.push({ label: 'Works', items: works.map(w => ({
+        title: w.t || 'Untitled',
+        meta: [w.y, w.m].filter(Boolean).join(' · '),
+        imgRef: mkRef(w.img, this.markBroken),
+        open: () => {
+          const list = (d.works || []).filter(x => x.s === w.s);
+          this.setState({ view: 'work', series: w.s, from: 'search', searchOpen: false, sel: Math.max(0, list.findIndex(x => x.img === w.img)) });
+        }
+      })) });
+      if (notes.length) groups.push({ label: 'Press', items: notes.map(n => ({
+        title: n.title,
+        meta: [n.kind, n.y].filter(Boolean).join(' · '),
+        imgRef: mkRef(n.img, this.markBroken),
+        open: () => { if (n.url) window.open(n.url, '_blank'); }
+      })) });
+      return { total: works.length + shows.length + notes.length, groups };
+    })();
+    const nAll = d.news || [];
+    const nF = st.newsFilter || 'All';
+    const nList = nF === 'All' ? nAll : nAll.filter(n => n.kind === nF);
+    const paras = cx.paras || [];
+    const p0 = paras[0] || '';
+    const ABBR = /(?:\b(?:Vs|Mr|Mrs|Ms|Dr|St|Ave|Blvd|Inc|Co|Jr|Sr|No|vol|pp|Feb|Sept|Oct|Nov|Dec|Jan|Mar|Apr|Jun|Jul|Aug)|\s[A-Z])\.$/;
+    // first real sentence: long enough and not ending on an abbreviation
+    const firstSentenceOf = t => {
+      const re = /[^.!?]*[.!?]+/g;
+      let m, acc = '';
+      while ((m = re.exec(t))) {
+        acc += m[0];
+        const trimmed = acc.trim();
+        if (trimmed.length >= 40 && !ABBR.test(trimmed)) return trimmed;
+        if (trimmed.length > 320) return trimmed;
+      }
+      return '';
+    };
+    // explicit blank lines in the source are paragraph breaks and survive chunking;
+    // single newlines inside a paragraph are kept as written
+    const chunk = t => String(t).split(/\n{2,}/).reduce((out, part) => {
+      if (!part.trim()) return out;
+      if (part.indexOf('\n') >= 0) { out.push(part.trim()); return out; }
+      const sents = part.match(/[^.!?]+[.!?]+(?:\s|$)/g) || [part];
+      for (let i = 0; i < sents.length; i += 3) out.push(sents.slice(i, i + 3).join('').trim());
+      return out;
+    }, []);
+    const cut = firstSentenceOf(p0);
+    const lead = cut || p0;
+    // header already shows venue / city / year — drop that tail from the summary
+    const MONTHS = /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/i;
+    const trimLead = t => {
+      const i = t.indexOf(',');
+      if (i <= 0) return t;
+      const tail = t.slice(i + 1).trim().replace(/\.$/, '');
+      if (!tail) return t;
+      const placeish = /\d{4}/.test(tail) || MONTHS.test(tail) ||
+        (cx.city && tail.indexOf(cx.city) >= 0) ||
+        (cx.venue && tail.indexOf(cx.venue) >= 0) ||
+        /^(?:[A-Z][A-Za-z.]*(?:\s[A-Z][A-Za-z.]*)*)(?:,\s*[A-Z][A-Za-z.]*(?:\s[A-Z][A-Za-z.]*)*)*$/.test(tail);
+      return placeish ? t.slice(0, i).replace(/[.,\s]+$/, '') + '.' : t;
+    };
+    const summary = cx.sum || trimLead(lead);
+    // with a hand-written summary the body keeps every paragraph intact
+    const remainder = cx.sum ? p0 : (cut && p0.indexOf(cut) === 0 ? p0.slice(cut.length).trim() : '');
+    const bodyAll = chunk(remainder)
+      .concat(paras.slice(1))
+      .filter(t => t && t.trim().length > 1);
+    const body = bodyAll;
+    // index of the trailing artist roster within summary-paras + body
+    const sumCount = String(cx.sum || cut || '').split(/\n{2,}/).map(t => t.trim()).filter(Boolean).length;
+    const rosterIdx = body.findIndex(t => /^Artists included:/i.test(t.trim()));
+    const rosterAt = rosterIdx < 0 ? -1 : sumCount + rosterIdx;
+    const venueCap = [cx.venue, cx.city, cx.y].filter(Boolean).join(', ');
+    const vImgs = (cx.venue_img || []).map(u => ({ u, c: venueCap }));
+    const galAll = (cx.gal || []);
+    // an image is an installation shot when its caption says so — no separate list to maintain.
+    // `inst: true` on a gal item puts it in Installs as well, without taking it out of Works.
+    const isInstall = g => g.inst === true || /installation view/i.test(g.c || '');
+    const isWork = g => g.inst === true || !/installation view/i.test(g.c || '');
+    const hasInstalls = galAll.some(isInstall);
+    const hasWorks = galAll.some(isWork);
+    const galFilter = hasInstalls && hasWorks ? (st.exGal || 'Works') : '';
+    // a dual-listed image can carry `cInst` — the caption it gets under the Installs tab
+    const lbAll = (galFilter === 'Installs' ? galAll.filter(isInstall)
+      : galFilter === 'Works' ? galAll.filter(isWork) : galAll)
+      .map(g => (galFilter === 'Installs' && g.cInst) ? Object.assign({}, g, { c: g.cInst }) : g);
+    // the pointer only counts if it was set for the show currently on screen
+    const ptr = (st.exFullFor === st.exhibit && st.exFullU) ? st.exFullU : '';
+    const byU = ptr ? lbAll.findIndex(g => g.u === ptr) : -1;
+    const fullI = byU >= 0 ? byU : 0;
+    const restItems = lbAll;
+
+    return {
+      vHome: view === 'home', vWorks: view === 'works', vSeries: view === 'series',
+      vWork: view === 'work', vExhibits: view === 'exhibits', vInfo: view === 'info',
+      vOverview: view === 'overview',
+      vYear: view === 'year',
+      toYear: () => this.setState({ view: 'year' }),
+      wallCapRef: el => { this._wallCap = el || this._wallCap; },
+      wallRef: el => {
+        if (!el) return;
+        if (!el._wheel) {
+          el._wheel = true;
+          el.addEventListener('wheel', ev => { if (this.state.phone) return; if (Math.abs(ev.deltaY) > Math.abs(ev.deltaX)) { el.scrollLeft += ev.deltaY; ev.preventDefault(); } }, { passive: false });
+        }
+        if (!el._centre) {
+          el._centre = true;
+          // the work nearest the middle of the wall names itself above the run
+          const mark = () => {
+            const cap = this._wallCap;
+            if (!cap) return;
+            const box = el.getBoundingClientRect();
+            const mid = box.left + box.width / 2;
+            let best = null, bestD = Infinity;
+            el.querySelectorAll('[data-wall-label]').forEach(n => {
+              const r = n.getBoundingClientRect();
+              const d = Math.abs(r.left + r.width / 2 - mid);
+              if (d < bestD) { bestD = d; best = n; }
+            });
+            const txt = best ? best.getAttribute('data-wall-label') : '';
+            if (txt && cap.textContent !== txt) cap.textContent = txt;
+            cap.style.opacity = txt ? 1 : 0;
+          };
+          el._mark = mark;
+          el.addEventListener('scroll', () => {
+            if (el._raf) return;
+            el._raf = requestAnimationFrame(() => { el._raf = null; mark(); });
+          }, { passive: true });
+          setTimeout(mark, 60);
+          setTimeout(mark, 400);
+        }
+      },
+      ...this.yearStyles(),
+      yearGroups: (() => {
+        const works = (d.works || []).filter(w => w.y);
+        const years = [];
+        works.forEach(w => { if (years.indexOf(w.y) < 0) years.push(w.y); });
+        years.sort((a, b) => b - a);
+        return years.map(y => {
+          const items = works.filter(w => w.y === y);
+          return {
+            year: String(y),
+            items: items.map((w, i) => ({
+              title: w.t || '',
+              label: [w.t || 'Untitled', w.y, w.m, w.d].filter(Boolean).join(', '),
+              // a repeating 3-step height ladder so the run reads like a hang rather than a filmstrip
+              style: { cursor: 'pointer', flex: 'none', height: st.phone
+                ? 'min(' + (i % 3 === 0 ? 38 : (i % 3 === 1 ? 27 : 33)) + 'dvh, ' + (i % 3 === 0 ? 300 : (i % 3 === 1 ? 215 : 255)) + 'px)'
+                : 'min(' + (i % 3 === 0 ? 44 : (i % 3 === 1 ? 32 : 38)) + 'vh, ' + (i % 3 === 0 ? 400 : (i % 3 === 1 ? 290 : 340)) + 'px)' },
+              imgRef: mkRef(w.img, this.markBroken, true),
+              open: () => {
+                const list = (d.works || []).filter(x => x.s === w.s);
+                this.setState({ view: 'work', series: w.s, workFrom: 'year', sel: Math.max(0, list.findIndex(x => x.img === w.img)) });
+              }
+            }))
+          };
+        });
+      })(),
+      toOverview: () => this.setState({ view: 'overview' }),
+      // the three browse modes ride in the black bar, same treatment as the exhibits filters
+      worksMenuModes: [
+        { label: 'Series', v: 'works', on: view === 'works' || view === 'series' },
+        { label: 'Media', v: 'overview', on: view === 'overview' },
+        { label: 'Year', v: 'year', on: view === 'year' }
+      ].map(m => ({
+        label: m.label,
+        pick: () => this.setState({ view: m.v, menuOpen: false }),
+        style: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+          fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase',
+          color: m.on ? '#ffffff' : 'rgba(255,255,255,.55)'
+        }
+      })),
+      toggleModes: () => this.setState(s => ({ modesOpen: !s.modesOpen })),
+      modesLabel: 'Browse by media or year',
+      modesClosed: !st.modesOpen,
+      modesToggleStyle: {
+        cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#ffffff',
+        opacity: st.modesOpen ? 1 : 0.62, background: 'none', border: 'none',
+        padding: 0, borderRadius: 0, marginLeft: 4
+      },
+      worksModes: [
+        { label: 'Series', v: 'works', on: view === 'works' || view === 'series' },
+        { label: 'Media', v: 'overview', on: view === 'overview' },
+        { label: 'Year', v: 'year', on: view === 'year' }
+      ].map(m => ({
+        label: m.label,
+        pick: () => this.setState({ view: m.v }),
+        style: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+          fontSize: 10.5, letterSpacing: '.2em', textTransform: 'uppercase',
+          color: m.on ? '#ffffff' : 'rgba(255,255,255,.62)',
+          fontWeight: 500,
+          background: 'none', border: 'none', padding: 0, borderRadius: 0
+        }
+      })),
+      ovFilters: ['All', 'Drawing', 'Print', 'Sculpture', 'Public', 'Video'].map(f => ({
+        label: f,
+        pick: () => this.setState({ ovFilter: f }),
+        style: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif', fontSize: 12,
+          background: 'none', border: 'none', borderRadius: 0, padding: 0,
+          letterSpacing: '.16em', textTransform: 'uppercase', paddingBottom: 4,
+          color: f === (st.ovFilter || 'All') ? '#141414' : '#6e6e72',
+          fontWeight: f === (st.ovFilter || 'All') ? 500 : 400,
+          borderBottom: '1px solid ' + (f === (st.ovFilter || 'All') ? 'rgba(20,20,20,.85)' : 'transparent')
+        }
+      })),
+      ovColumns: this.splitCols((d.works || [])
+        .filter(w => { const f = st.ovFilter || 'All'; return f === 'All' || (w.k || []).indexOf(f) >= 0; })
+        .slice()
+        .sort((a, b) => (b.y || 0) - (a.y || 0))
+        .map((w, i) => ({
+          title: w.t || 'Untitled',
+          meta: [w.y, w.m, w.d].filter(Boolean).join(', '),
+          // media view shows every work as a still, video included — same
+          // fixed poster treatment the series grid uses
+          isPoster: !!w.video,
+          isStill: !w.video,
+          href: '#/works/' + this.slug(w.s) + '/' + (((d.works || []).filter(x => x.s === w.s).findIndex(x => x.img === w.img)) + 1),
+          label: [w.t || 'Untitled', w.y, w.m, w.d].filter(Boolean).join(', '),
+          videoRef: el => {
+            if (!el || el._wired || !w.video) return;
+            el._wired = true;
+            el.muted = true; el.defaultMuted = true; el.loop = true;
+            fetch(w.video).then(r => r.blob()).then(b => {
+              el.src = URL.createObjectURL(b); el.load(); el.play().catch(() => {});
+            }).catch(() => { el.src = w.video; el.play().catch(() => {}); });
+          },
+          open: ev => {
+            if (ev && (ev.metaKey || ev.ctrlKey || ev.shiftKey)) return;
+            const list = (d.works || []).filter(x => x.s === w.s);
+            this.setState({ view: 'work', series: w.s, workFrom: 'overview', sel: Math.max(0, list.findIndex(x => x.img === w.img)) });
+          },
+          imgRef: mkRef(w.img, this.markBroken)
+        })), this.state.colCount || 3),
+      vExhibit: view === 'exhibit',
+      oWorks: (view === 'works' || view === 'series' || view === 'work' || view === 'overview' || view === 'year') ? 1 : 0.62,
+      oExhibits: (view === 'exhibits' || view === 'exhibit') ? 1 : 0.62,
+      oInfo: view === 'info' ? 1 : 0.62,
+      hasQuery: !!(st.q || '').trim(),
+      // an overlay, so the page you searched from stays visible behind it
+      vSearch: view === 'search' || !!st.searchOpen,
+      toSearch: () => this.setState({ searchOpen: true }),
+      searchBackdrop: ev => {
+        if (ev.target !== ev.currentTarget) return;
+        this.setState(s => ({ searchOpen: false, view: s.view === 'search' ? 'home' : s.view }));
+      },
+      closeSearch: () => this.setState(s => ({ searchOpen: false, view: s.view === 'search' ? 'home' : s.view })),
+
+      // the info page only, and always visible there
+      showSearch: view === 'info',
+      toSearchMenu: () => this.setState({ searchOpen: true, menuOpen: false }),
+      searchPageRef: el => {
+        if (!el || el._init) return;
+        el._init = true;
+        el.value = st.q || '';
+        setTimeout(() => el.focus(), 80);
+      },
+      searchInputRef: el => {
+        if (!el || el._init) return;
+        el._init = true;
+        el.value = st.q || '';
+      },
+      onSearchInput: e => this.setState({ q: e.target.value }),
+      onSearchSubmit: e => e.preventDefault(),
+      searchStatus: (() => {
+        const q = (st.q || '').trim();
+        if (!q) return 'Type to search the catalogue';
+        return searchHits.total + (searchHits.total === 1 ? ' result' : ' results') + ' for “' + q + '”';
+      })(),
+      searchGroups: searchHits.groups,
+      menuOpen: !!st.menuOpen,
+      toggleMenu: () => this.setState(p => ({ menuOpen: !p.menuOpen })),
+      toHomeMenu: () => this.setState({ view: 'home', menuOpen: false }),
+      toWorksMenu: () => this.setState({ view: 'works', menuOpen: false }),
+      toExhibitsMenu: () => this.setState({ view: 'exhibits', menuOpen: false }),
+      toNewsMenu: () => this.setState({ view: 'news', menuOpen: false }),
+      toInfoMenu: () => this.goInfo(),
+      toHome: this.go('home'), toWorks: () => this.setState({ view: 'works' }),
+      toExhibits: this.go('exhibits'), toInfo: () => this.goInfo(),
+      // the back button out of a show always lands on the unfiltered list
+      toAllExhibits: () => this.setState({ view: 'exhibits', exhFilter: 'All' }),
+      toContact: () => this.goInfo({ enquiry: [w.t, w.y, w.m, w.d].filter(Boolean).join(', ') }),
+      hasEnquiry: !!st.enquiry,
+      enquiryWork: st.enquiry || '',
+      msgRef: el => { this._msgEl = el; },
+      infoAnchorRef: el => { this._infoAnchor = el; },
+      toTop: () => { if (this._homeScroll) this._homeScroll.scrollTo({ top: 0, behavior: 'smooth' }); },
+      backToSeries: () => this.setState({ view: st.workFrom || 'series' }),
+      wBackLabel: st.workFrom === 'overview' ? 'Overview' : (st.workFrom === 'year' ? 'By year' : (st.series || 'Works')),
+      nextSlide: () => { this.warmNear(si + 2); this.setState(s => ({ slide: s.slide + 1 })); },
+      prevSlide: () => { this.warmNear(si - 2); this.setState(s => ({ slide: s.slide - 1 + slides.length })); },
+      openSlideShow: () => { if (cur.title) this.openExhibit(cur.title); },
+      nextWork: () => this.step(1), prevWork: () => this.step(-1),
+
+      slideA: mkRef((slides[even ? si : prevI] || {}).img),
+      slideB: mkRef((slides[even ? prevI : si] || {}).img),
+      slideAOpacity: even ? 1 : 0,
+      slideBOpacity: even ? 0 : 1,
+      slideInkStyle: navInk === 'light'
+        ? { pointerEvents: 'auto', cursor: 'pointer', color: '#ffffff', textShadow: '0 1px 16px rgba(0,0,0,.5)' }
+        : { pointerEvents: 'auto', cursor: 'pointer', color: '#141414', textShadow: 'none' },
+      slideTitleStyle: {
+        fontSize: 15, lineHeight: 1.4, display: 'inline-block', paddingBottom: 2,
+        borderBottom: '1px solid ' + (navInk === 'light' ? 'rgba(255,255,255,.55)' : 'rgba(20,20,20,.35)')
+      },
+      slideVenueStyle: { fontSize: 12, lineHeight: 1.7, marginTop: 4, opacity: navInk === 'light' ? 0.8 : 0.6 },
+      // src/autoplay/loop live on the tag so playback never depends on JS running first
+      heroVideoRef: el => {
+        if (!el || el._wired) return;
+        el._wired = true;
+        // muted and loop have to be set as properties — as attributes React drops them,
+        // and autoplay is blocked on anything not actually muted
+        el.muted = true;
+        el.defaultMuted = true;
+        el.loop = true;
+        // a visitor who asked their system for less motion keeps the poster frame:
+        // nothing autoplays and the 11MB loop is never fetched
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          el.autoplay = false;
+          el.removeAttribute('autoplay');
+          el.preload = 'none';
+          try { el.pause(); } catch (err) {}
+          return;
+        }
+        // Stream first: on a host that answers byte ranges (GitHub Pages does) playback starts on
+        // the first few hundred KB instead of waiting for all 11MB. Hosts that ignore ranges —
+        // this preview among them — can't be streamed by WebKit, so fall back to fetching the
+        // whole file and playing it from a blob. Whichever path runs, it runs once.
+        let usedBlob = false;
+        const viaBlob = () => {
+          if (usedBlob) return;
+          usedBlob = true;
+          fetch('./hero-v5.mp4')
+            .then(r => r.blob())
+            .then(b => { el.src = URL.createObjectURL(b); el.load(); el.play().catch(() => {}); })
+            .catch(() => {});
+        };
+        el.addEventListener('error', viaBlob, { once: true });
+        el.src = './hero-v5.mp4';
+        el.load();
+        el.play().catch(viaBlob);
+        // nothing advancing after three seconds means the range request never resolved
+        setTimeout(() => { if (!el.currentTime) viaBlob(); }, 3000);
+      },
+      heroCaption: 'The Question Remains — 2026',
+      heroMeta: 'Video, 3 minute loop, silent',
+      slideTitle: cur.title || '',
+      slideVenue: [cur.venue, cur.y].filter(Boolean).join(', '),
+      slideCount: slides.length ? (si + 1) + ' / ' + slides.length : '',
+
+      workCount: d.works.length,
+      seriesCount: d.series.length,
+      seriesColumns: (() => {
+        const items = d.series.map(x => ({
+          name: x.name,
+          isPoster: (d.works || []).some(w => w.s === x.name && w.video),
+          isStill: !(d.works || []).some(w => w.s === x.name && w.video),
+          videoRef: el => {
+            const vid = ((d.works || []).find(w => w.s === x.name && w.video) || {}).video;
+            if (!el || el._wired || !vid) return;
+            el._wired = true;
+            el.muted = true; el.defaultMuted = true; el.loop = true;
+            fetch(vid).then(r => r.blob()).then(b => {
+              el.src = URL.createObjectURL(b); el.load(); el.play().catch(() => {});
+            }).catch(() => { el.src = vid; el.play().catch(() => {}); });
+          },
+          open: () => this.setState({ view: 'series', series: x.name, sel: 0 }),
+          imgRef: mkRef(x.cover, this.markBroken)
+        }));
+        return this.splitCols(items, this.state.colCount >= 2 ? 2 : 1);
+      })(),
+      seriesWorkColumns: (() => {
+        const items = seriesWorks.map((it, i) => ({
+          title: it.t || 'Untitled',
+          isPoster: !!it.video,
+          isStill: !it.video,
+          videoRef: el => {
+            if (!el || el._wired || !it.video) return;
+            el._wired = true;
+            el.muted = true; el.defaultMuted = true; el.loop = true;
+            fetch(it.video).then(r => r.blob()).then(b => {
+              el.src = URL.createObjectURL(b); el.load(); el.play().catch(() => {});
+            }).catch(() => { el.src = it.video; el.play().catch(() => {}); });
+          },
+          // the label a collector needs: year, medium, dimensions
+          meta: [it.y, it.m, it.d].filter(Boolean).join(', '),
+          href: '#/works/' + this.slug(st.series) + '/' + (i + 1),
+          label: [it.t || 'Untitled', it.y, it.m, it.d].filter(Boolean).join(', '),
+          open: ev => { if (ev && (ev.metaKey || ev.ctrlKey || ev.shiftKey)) return; this.setState({ view: 'work', workFrom: 'series', sel: i }); },
+          imgRef: mkRef(it.img, this.markBroken)
+        }));
+        return this.splitCols(items, this.state.colCount >= 2 ? 2 : 1);
+      })(),
+      sBg: this.darkSeries(st.series) ? this.groundBg() : '#ffffff',
+      sInk: this.darkSeries(st.series) ? '#ffffff' : '#1f1f21',
+      sInk2: this.darkSeries(st.series) ? '#b9b9bd' : '#4a4a4d',
+      sInk3: this.darkSeries(st.series) ? '#8e8e92' : '#7a7a7e',
+      sRule: this.darkSeries(st.series) ? 'rgba(255,255,255,.32)' : '#9c9ca0',
+      sShadow: this.shadowSeries(st.series) ? '0 14px 34px rgba(20,20,20,.08), 0 2px 6px rgba(20,20,20,.05)' : 'none',
+      sBed: this.darkSeries(st.series) ? (this.ground() === 'black' ? '#141414' : '#232325') : '#f6f5f2',
+      prevSeries: () => this.stepSeries(-1),
+      nextSeries: () => this.stepSeries(1),
+      curSeries: st.series || '',
+      statement: (d.statement || ''),
+      // the one h1 on the page, named for whatever view is showing
+      pageHeading: this.headFor().h,
+      seriesNote: ((d.series || []).find(x => x.name === st.series) || {}).note || '',
+      hasSeriesNote: !!((d.series || []).find(x => x.name === st.series) || {}).note,
+      wImgRef: el => {
+        if (!el || !w.img) return;
+        el.onerror = () => { el.style.visibility = 'hidden'; };
+        el.onload = () => { el.style.visibility = ''; };
+        if (el.getAttribute('src') !== w.img) { el.style.visibility = ''; el.src = w.img; }
+      },
+      wIsVideo: !!w.video,
+      wIsStill: !w.video,
+      wVideoRef: el => {
+        if (!el || el._wired || !w.video) return;
+        el._wired = true;
+        el.muted = true; el.defaultMuted = true; el.loop = true;
+        fetch(w.video).then(r => r.blob()).then(b => {
+          el.src = URL.createObjectURL(b); el.load(); el.play().catch(() => {});
+        }).catch(() => { el.src = w.video; el.play().catch(() => {}); });
+      },
+      wMissing: false,
+      wTitle: w.t || '', wYear: w.y ? String(w.y) : '',
+      wMedium: w.m || '', wDims: w.d || '', wSeries: st.series || 'Works',
+      wCaption: [w.t, w.y, w.m, w.d].filter(Boolean).join(', '),
+      wPos: seriesWorks.length ? (st.sel + 1) + ' of ' + seriesWorks.length : '',
+      wSlash: seriesWorks.length ? (st.sel + 1) + ' / ' + seriesWorks.length : '',
+      // phone only: swipe across a series page steps to the next series
+      seriesTouchStart: e => {
+        if (!st.phone) return;
+        const t = e.touches && e.touches[0];
+        this._ssw = t ? { x: t.clientX, y: t.clientY } : null;
+      },
+      seriesTouchEnd: e => {
+        if (!st.phone || !this._ssw) return;
+        const t = e.changedTouches && e.changedTouches[0];
+        const s0 = this._ssw; this._ssw = null;
+        if (!t) return;
+        const dx = t.clientX - s0.x, dy = t.clientY - s0.y;
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+        this.stepSeries(dx < 0 ? 1 : -1);
+      },
+      // phone only: swipe across the artwork steps through the series
+      workTouchStart: e => {
+        if (!st.phone) return;
+        const t = e.touches && e.touches[0];
+        this._wsw = t ? { x: t.clientX, y: t.clientY } : null;
+      },
+      workTouchEnd: e => {
+        if (!st.phone || !this._wsw) return;
+        const t = e.changedTouches && e.changedTouches[0];
+        const s0 = this._wsw; this._wsw = null;
+        if (!t) return;
+        const dx = t.clientX - s0.x, dy = t.clientY - s0.y;
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+        this.step(dx < 0 ? 1 : -1);
+      },
+
+      exhFilters: ['All', 'Solo', 'Group', 'Curated'].map(f => ({
+        label: f,
+        pick: () => this.setState({ exhFilter: f }),
+        // quiet, but the inactive words still have to be readable — they are the only control
+        style: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+          fontSize: 10.5, letterSpacing: '.2em', textTransform: 'uppercase',
+          color: f === exhF ? '#141414' : '#6e6e72',
+          fontWeight: f === exhF ? 600 : 400,
+          background: 'none', border: 'none', padding: 0, borderRadius: 0
+        },
+        // over the imagery the same row runs in white
+        styleLight: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+          fontSize: 10.5, letterSpacing: '.2em', textTransform: 'uppercase',
+          color: f === exhF ? '#ffffff' : 'rgba(255,255,255,.62)',
+          fontWeight: f === exhF ? 600 : 400,
+          background: 'none', border: 'none', padding: 0, borderRadius: 0
+        }
+      })),
+      vNews: view === 'news',
+      oNews: view === 'news' ? 1 : 0.62,
+      toNews: this.go('news'),
+      newsLabel: 'News',
+      newsFilters: ['All', 'Press', 'Event'].map(f => ({
+        label: f === 'Event' ? 'Events' : f,
+        pick: () => this.setState({ newsFilter: f }),
+        // white version for the black bar
+        styleLight: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+          fontSize: 10.5, letterSpacing: '.2em', textTransform: 'uppercase',
+          color: f === nF ? '#ffffff' : 'rgba(255,255,255,.62)',
+          fontWeight: f === nF ? 600 : 400,
+          background: 'none', border: 'none', padding: 0, borderRadius: 0
+        },
+        style: {
+          cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif', fontSize: 12,
+          background: 'none', border: 'none', borderRadius: 0, padding: 0,
+          letterSpacing: '.16em', textTransform: 'uppercase', paddingBottom: 4,
+          color: f === nF ? '#141414' : '#6e6e72',
+          fontWeight: f === nF ? 500 : 400,
+          borderBottom: '1px solid ' + (f === nF ? 'rgba(20,20,20,.85)' : 'transparent')
+        }
+      })),
+      newsList: nList.map(n => {
+        // the clipping is in the image; expose the same facts to search and screen readers
+        const outlet = (() => {
+          try { return n.url ? new URL(n.url).hostname.replace(/^www\./, '') : ''; } catch (e) { return ''; }
+        })();
+        const kind = n.kind === 'Press' ? 'Press' : 'Exhibition';
+        const meta = [n.title, kind, n.y, outlet].filter(Boolean).join(' — ');
+        return {
+          title: n.title, year: n.y, url: n.url || '#',
+          meta,
+          alt: [n.title, kind === 'Press' ? 'press clipping' : 'announcement', n.y].filter(Boolean).join(', '),
+          linkLabel: n.url ? (n.url.indexOf('.pdf') > 0 ? 'PDF' : 'Read') : '',
+          imgRef: mkRef(n.img, this.markBroken),
+          isView: !!(n.gal && n.gal[0] && n.gal[0].view),
+          isLink: !(n.gal && n.gal[0] && n.gal[0].view),
+          openView: () => this.setState({ newsView: n.gal[0].u, newsViewCap: n.gal[0].c || n.title, newsViewUrl: n.url || '', newsViewLabel: n.gal[0].label || 'Read the original' })
+        };
+      }),
+      vNewsView: !!st.newsView,
+      newsViewCaption: st.newsViewCap || '',
+      newsViewUrl: st.newsViewUrl || '',
+      newsViewLinkLabel: st.newsViewLabel || 'Read the original',
+      newsViewIsPdf: /\.pdf($|\?)/i.test(st.newsView || ''),
+      newsViewIsImg: !!st.newsView && !/\.pdf($|\?)/i.test(st.newsView),
+      newsViewPdfRef: el => { if (el && st.newsView && el.src !== st.newsView) el.src = st.newsView; },
+      newsViewImgRef: el => { if (el && st.newsView && el.src !== st.newsView) el.src = st.newsView; },
+      closeNewsView: () => this.setState({ newsView: '', newsViewCap: '', newsViewUrl: '', newsViewLabel: '' }),
+      portraitRef: mkRef('./images/doug-crocco-portrait.jpg', this.markBroken),
+      portraitRef2: mkRef('./images/doug-crocco-portrait.jpg', this.markBroken),
+      infoBgRef: mkRef((window.IMG_BASE||'') + 'artwork/uploads/2019/02/19-1.jpg'),
+      infoBgRef2: mkRef((window.IMG_BASE||'') + 'artwork/uploads/2014/10/PB3.jpg'),
+      infoBgRef3: mkRef((window.IMG_BASE||'') + 'artwork/uploads/2014/10/PB3.jpg'),
+      infoBgRefHome: mkRef((window.IMG_BASE||'') + 'artwork/uploads/2019/02/19-1.jpg'),
+      contactSent: st.contactSent === 'sent',
+      contactFailed: st.contactSent === 'failed',
+      contactPending: st.contactSent === 'sending',
+      contactIdle: !st.contactSent,
+      sendLabel: st.contactSent === 'sending' ? 'Sending' : 'Send',
+      // posts to contact.php on the live host; falls back to the mail app if that endpoint
+      // isn't there (as on GitHub Pages) or the send fails
+      onContactSubmit: e => {
+        e.preventDefault();
+        const f = e.target;
+        const from = (f.email && f.email.value) || '';
+        const msg = (f.message && f.message.value) || '';
+        const subject = st.enquiry ? 'Enquiry: ' + st.enquiry : 'Website enquiry';
+        const openMail = () => {
+          window.location.href = 'mailto:doug@dougcrocco.com?subject=' + encodeURIComponent(subject) +
+            '&body=' + encodeURIComponent(msg + (st.enquiry ? '\n\nRe: ' + st.enquiry : '') + (from ? '\n\nFrom: ' + from : ''));
+        };
+        const body = new FormData();
+        body.append('email', from); body.append('message', msg);
+        body.append('work', st.enquiry || ''); body.append('subject', subject);
+        body.append('website', (f.website && f.website.value) || '');
+        this.setState({ contactSent: 'sending' });
+        fetch('./contact.php', { method: 'POST', body })
+          .then(r => r.ok ? r.json().catch(() => ({ ok: true })) : Promise.reject(r.status))
+          .then(j => {
+            if (j && j.ok === false) return Promise.reject('rejected');
+            this.setState({ contactSent: 'sent' });
+            if (f.reset) f.reset();
+          })
+          .catch(() => { this.setState({ contactSent: '' }); openMail(); });
+      },
+      cvSections: (d.cv || []).map(sec => ({
+        h: sec.h,
+        items: (sec.items || []).map(r => ({ y: r.y, t: r.t, v: r.v ? '  ·  ' + r.v : '' }))
+      })),
+      // home scroll: five most recent shows — one full plate, then two rows of halves
+      // All = a 7-show taste; a named filter shows every matching show, so the filter never lies about the set
+      homeExhibits: exhList.slice().sort((a, b) => (b.y || 0) - (a.y || 0)).slice(0, exhF === 'All' ? 4 : 99)
+        .map((e, i) => homeTile(this, e, i % 3 === 0, st, mkRef)),
+      exhibitLabel: 'Exhibitions · ' + exhList.length + (exhF === 'All' ? '' : ' ' + exhF.toLowerCase()) + ' · 2005 – 2024',
+      // a full-width plate, then a pair of tall halves, repeating
+      exhibits: exhList.map((e, i) => {
+        const full = i % 3 === 0;
+        return {
+          year: e.y ? String(e.y) : '', title: e.title,
+          venue: [e.venue, e.city].filter(Boolean).join(', '),
+          kind: e.kinds.join(' · '),
+          // a real link, so the tile is focusable and openable in a new tab
+          href: '#/exhibit/' + this.slug(e.title),
+          label: [e.title, e.venue, e.city, e.y, e.kinds.join(' ')].filter(Boolean).join(', '),
+          open: ev => { if (ev && !ev.metaKey && !ev.ctrlKey && !ev.shiftKey) this.openExhibit(e.title); },
+          imgRef: (() => { const base = mkRef(e.img); const pos = e.tilePos || e.heroPos; return el => { base(el); if (el && pos) el.style.objectPosition = pos; }; })(),
+          // per-show ink: black type on light imagery, white on everything else
+          capStyle: (() => {
+            const dark = e.ink === 'dark' || DARK_TILE_TITLES.indexOf(e.title) >= 0;
+            return {
+              position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 2,
+              display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+              // the scrim is sized to the caption box, not the tile: its height is the text
+              // plus this padding, so the darkening only ever covers the type and the image
+              // above it stays untouched however many lines the title takes
+              paddingTop: st.phone ? 38 : 58,
+              paddingBottom: st.phone ? (full ? 18 : 14) : (full ? 40 : 26),
+              paddingLeft: st.phone ? (full ? 18 : 14) : (full ? 40 : 30),
+              paddingRight: st.phone ? (full ? 18 : 14) : (full ? 40 : 30),
+              color: dark ? '#141414' : '#ffffff',
+              background: dark
+                ? 'linear-gradient(to top, rgba(255,255,255,.62) 0%, rgba(255,255,255,.4) 55%, rgba(255,255,255,0) 100%)'
+                : 'linear-gradient(to top, rgba(0,0,0,.6) 0%, rgba(0,0,0,.38) 55%, rgba(0,0,0,0) 100%)'
+            };
+          })(),
+          // one ladder for both lines; the narrow string drops the city rather than the type size
+          overlayMeta: (() => {
+            const city = e.city || '';
+            let venue = e.venue || '';
+            if (city && venue.length > city.length && venue.slice(-city.length) === city) {
+              venue = venue.slice(0, -city.length).replace(/[\s,]+$/, '');
+            }
+            const place = st.narrow ? venue : [venue, city].filter(Boolean).join(', ');
+            return [place, e.y].filter(Boolean).join(' — ');
+          })(),
+          metaStyle: {
+            fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+            fontSize: st.phone ? 11 : 12, fontWeight: 500,
+            letterSpacing: st.phone ? '.12em' : '.18em',
+            textTransform: 'uppercase', marginTop: st.phone ? 7 : 10, opacity: 0.85
+          },
+          wrapStyle: { cursor: 'pointer', width: full ? '100%' : 'calc(50% - 1px)', color: 'inherit', textDecoration: 'none' },
+          // the opening tile fills the first screen; the rest keep the 16:9 / 8:9 rhythm
+          // one row height for every tile, full or half — 16:9 full-width equals two 8:9 halves
+          // 16:9 full-width is exactly the height of two 8:9 halves — same row height, taller tiles
+          plateStyle: Object.assign({ height: 0, paddingBottom: full ? '56.25%' : '112.5%' }, PLATE, { boxShadow: 'none', backgroundColor: '#0a0a0a' }),
+          titleStyle: {
+            fontFamily: "'EB Garamond',Georgia,serif",
+            fontSize: st.narrow ? (full ? 22 : 17) : (st.phone ? (full ? 26 : 19) : 38),
+            lineHeight: 1.15, letterSpacing: '-.01em', maxWidth: '26ch',
+            textWrap: 'balance', color: 'inherit',
+            // a tight shadow for edge definition where the image is busy — no visible haze
+            textShadow: '0 1px 3px rgba(0,0,0,.32)'
+          }
+        };
+      }),
+
+      exTitle: cx.title || '',
+      exVenue: cx.venue || '',
+      exYear: cx.y ? String(cx.y) : '',
+      // a show can carry a structured artist roster; it renders as columns, not prose
+      exHasArtists: !!(cx.artists && cx.artists.length),
+      // long rosters load closed behind a cue — 50 names is the line
+      exArtistsCollapsible: collapseArtists,
+      exArtistsOpen: !collapseArtists || !!st.exArtistsOpen,
+      exArtistsHeadLabel: (collapseArtists && !st.exArtistsOpen) ? 'See artists' : 'Artists',
+      // a collapsible roster reads like the other cues: text-width underline, no full rule
+      exArtistsHeadStyle: collapseArtists ? {
+        display: 'inline-block', cursor: 'pointer',
+        fontFamily: 'Raleway,Helvetica,Arial,sans-serif', fontSize: 11, fontWeight: 500,
+        letterSpacing: '.2em', textTransform: 'uppercase', color: '#4a4a4d',
+        paddingBottom: 3, borderBottom: '1px solid rgba(20,20,20,.4)'
+      } : {
+        fontFamily: 'Raleway,Helvetica,Arial,sans-serif', fontSize: 12, fontWeight: 500,
+        letterSpacing: '.2em', textTransform: 'uppercase', color: '#6e6e72',
+        paddingBottom: 11, borderBottom: '1px solid rgba(20,20,20,.16)'
+      },
+      toggleExArtists: () => this.setState({ exArtistsOpen: !this.state.exArtistsOpen }),
+      exArtists: (cx.artists || []).slice().sort((a, b) => {
+        const last = n => { const p = String(n).trim().split(/\s+/); return p[p.length - 1].toLowerCase(); };
+        return last(a).localeCompare(last(b)) || String(a).localeCompare(String(b));
+      }).map(n => ({ name: n })),
+      exKind: (cx.kinds || []).join(' · '),
+      exHeroRef: mkRef(cx.img),
+      exHeroStyle: Object.assign({ height: 0, paddingBottom: '62.5%' }, PLATE),
+      exPlaceDate: [cx.city, cx.y].filter(Boolean).join(' · '),
+      prevExhibit: () => this.stepExhibit(-1),
+      nextExhibit: () => this.stepExhibit(1),
+      exScrollRef: el => {
+        this._exScroll = el;
+        if (el && !el._track) {
+          el._track = true;
+          el.addEventListener('scroll', () => {
+            const block = this._pressBlock;
+            if (!block) return;
+            const edge = block.offsetTop + block.offsetHeight;
+            const hidden = this.state.exInfoHidden;
+            const past = hidden ? el.scrollTop > edge - 80 : el.scrollTop >= edge;
+            if (past !== hidden) this.setState({ exInfoHidden: past });
+          }, { passive: true });
+        }
+      },
+      // land the "Press release" label at the very top of the view
+      backdropToGrid: ev => { if (ev.target === ev.currentTarget) this.setViewMode('grid'); },
+      showInfo: () => { this.setState({ navSnap: true }); this.scrollTo(this._pressRow, 22); },
+      viewsRowRef: el => { this._viewsRow = el; },
+      fullSwipeRef: el => { this._fullFrame = el; this.attachSwipe(el, d => this.stepFull(d)); },
+      exGridRef: el => { this._exGrid = el; },
+      pressRowRef: el => { this._pressRow = el; },
+      pressBlockRef: el => { this._pressBlock = el; },
+      exInfoHidden: !!st.exInfoHidden,
+      // the row only exists when something can sit in it
+      exHasLinkRow: !!(cx.press && cx.press.u) || !!(cx.press2 && cx.press2.u) || !!cx.url || !!cx.pdf || !!st.exInfoHidden,
+      exBackStyle: {
+        cursor: 'pointer', fontFamily: 'Raleway,Helvetica,Arial,sans-serif',
+        fontSize: 10.5, letterSpacing: '.2em', textTransform: 'uppercase',
+        color: 'rgba(255,255,255,.62)', fontWeight: 400,
+        background: 'none', border: 'none', padding: 0, borderRadius: 0
+      },
+      exScrollStyle: {
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        overflowY: 'auto', padding: (st.phone ? '0 18px ' : '0 44px ') + (st.exMode === 'full' ? (st.phone ? '8vh' : '20vh') : '70px')
+      },
+      homeScrollRef: el => { this._homeScroll = el; },
+      navStyle: {
+        position: 'absolute', top: 0, left: 0, right: 0, height: 86,
+        background: navOnWhite ? '#ffffff' : 'transparent',
+        borderBottom: navOnWhite ? '1px solid rgba(20,20,20,.14)' : 'none',
+        // the hero carries its own menu, so the bar only serves the inner views
+        // home and exhibits carry their own controls over the imagery
+        // every page now carries the black bar with the burger; the old top nav is retired
+        display: 'none',
+        alignItems: 'center', justifyContent: 'space-between',
+        padding: st.phone ? '0 18px' : '0 44px', zIndex: 5, pointerEvents: 'none',
+        color: (navOnWhite || navInk === 'dark') ? '#141414' : '#ffffff',
+        textShadow: (!navOnWhite && navInk === 'light') ? '0 1px 16px rgba(0,0,0,.5)' : 'none',
+        transform: 'translateY(-' + navOff + 'px)',
+        opacity: 1 - (navOff / 86),
+        transition: st.navSnap ? 'transform .3s cubic-bezier(.33,1,.68,1), opacity .24s ease' : 'none'
+      },
+      // bar and title stay put; the gallery below them scrolls under
+      // only the bar stays locked; the title scrolls up under it like everything else
+      exTitleBlockStyle: { maxWidth: 1760, padding: cx.hero ? '0 0 24px' : '0 0 40px' },
+      exHasHero: !!cx.hero,
+      heroFrameStyle: {
+        width: '100vw', marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)',
+        marginBottom: 34, overflow: 'hidden',
+        height: 'min(56vh, 620px)',
+        background: '#f2f1ee',
+        touchAction: st.phone ? 'pan-y' : 'auto'
+      },
+      // phone only: a horizontal swipe across the banner steps to the next / previous show
+      heroTouchStart: e => {
+        if (!st.phone) return;
+        const t = e.touches && e.touches[0];
+        this._sw = t ? { x: t.clientX, y: t.clientY } : null;
+      },
+      heroTouchEnd: e => {
+        if (!st.phone || !this._sw) return;
+        const t = e.changedTouches && e.changedTouches[0];
+        const s = this._sw; this._sw = null;
+        if (!t) return;
+        const dx = t.clientX - s.x, dy = t.clientY - s.y;
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+        this.stepExhibit(dx < 0 ? 1 : -1);
+      },
+      heroImgRef: el => {
+        const u = cx.hero || '';
+        if (!el || !u) return;
+        if (el.getAttribute('src') === u) return;
+        el.onerror = () => { el.style.display = 'none'; this.markBroken(u); };
+        el.onload = () => { el.style.display = ''; };
+        el.style.display = '';
+        el.src = u;
+        el.style.animation = 'none';
+      },
+      // heroPos lets a show anchor its banner crop (e.g. 'right center') instead of centering
+      heroImgStyle: { display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: cx.heroPos || 'center' },
+      exCollapsedParas: (() => {
+        const sp = String(summary).split(/\n{2,}/).map(t => t.trim()).filter(Boolean);
+        const all = sp.concat(body);
+        this._exCut = -1;
+        // cut on a paragraph boundary: roster, else the paragraph that fills the
+        // column beside the venue photograph (never mid-sentence, never a fade)
+        let cutAt = rosterAt;
+        if (cutAt < 0) {
+          const target = st.phone ? 560 : 700;
+          let acc = 0, k = 0;
+          while (k < all.length && acc < target) { acc += all[k].length; k++; }
+          cutAt = (k < all.length) ? k : -1;
+        }
+        this._exCut = cutAt;
+        const keep = (!st.exOpen && cutAt >= 0) ? all.slice(0, cutAt) : all;
+        return keep.map((t, i) => ({ text: t, i, parts: this.linkParts(t, cx.links) }));
+      })(),
+      // one continuous text flow wrapping a right-floated venue photograph; "See more"
+      // just lifts the height cap so the copy fills the space under the image
+      exRosterCut: rosterAt >= 0,
+      exVenueColStyle: st.narrow
+        ? { float: 'none', width: '100%', margin: '40px 0 0', order: 3 }
+        : { float: 'right', width: st.phone ? 'clamp(150px, 38vw, 240px)' : 'clamp(240px, 26vw, 320px)', margin: st.phone ? '5px 0 6px 22px' : '6px 0 8px 52px' },
+      exCopyWrapStyle: st.narrow
+        ? { position: 'relative', display: 'flex', flexDirection: 'column' }
+        : { position: 'relative' },
+      exCollapsedFade: false,
+      exFadeStyle: {
+        position: 'absolute', left: 0, bottom: 0, height: st.phone ? 56 : 120, pointerEvents: 'none',
+        right: st.narrow ? 0 : (st.phone ? 'calc(clamp(150px, 38vw, 240px) + 22px)' : 'calc(clamp(240px, 26vw, 320px) + 52px)'),
+        background: 'linear-gradient(to bottom, rgba(255,255,255,0), #ffffff 88%)'
+      },
+      exHasMore: this._exCut >= 0,
+      exExpanded: !!st.exOpen,
+      exMoreLabel: st.exOpen ? 'Less' : (rosterAt >= 0 ? 'Artist list' : 'See more'),
+      toggleExText: () => {
+        // expanding the copy moves the gallery under the pointer; a delayed
+        // click would otherwise land on the arrow now sitting in that spot
+        this._enteredAt = Date.now();
+        this.setState(x => ({ exOpen: !x.exOpen }), () => {
+          if (!this.state.exOpen) this.scrollTo(this._pressRow, 26);
+        });
+      },
+      exHasPress: !!(cx.press && cx.press.u),
+      exPressIsImage: !!(cx.press && /\.(jpg|jpeg|png|gif|webp)$/i.test(cx.press.u)),
+      exPressIsPage: !!(cx.press && cx.press.u && !/\.(jpg|jpeg|png|gif|webp)$/i.test(cx.press.u)),
+      exPressUrl: (cx.press || {}).u || '',
+      exPressLabel: (cx.press || {}).label || '',
+      openPress: () => { if (cx.press && cx.press.u) this.setState({ venue: cx.press.u, venueCap: cx.press.label || '' }); },
+      exHasPress2: !!(cx.press2 && cx.press2.u),
+      exPress2IsImage: !!(cx.press2 && /\.(jpg|jpeg|png|gif|webp)$/i.test(cx.press2.u)),
+      exPress2IsPage: !!(cx.press2 && cx.press2.u && !/\.(jpg|jpeg|png|gif|webp)$/i.test(cx.press2.u)),
+      exPress2Url: (cx.press2 || {}).u || '',
+      exPress2Label: (cx.press2 || {}).label || '',
+      openPress2: () => { if (cx.press2 && cx.press2.u) this.setState({ venue: cx.press2.u, venueCap: cx.press2.label || '' }); },
+      exHasUrl: !!cx.url,
+      exUrl: cx.url || '',
+      exUrlLabel: cx.urlLabel || 'Gallery website',
+      exHasPdf: !!cx.pdf,
+      exPdf: cx.pdf || '',
+      exPdfLabel: cx.pdfLabel || 'Checklist',
+      exVenueImgs: (() => {
+        // every frame gets its own layer and keeps its src for good — only opacity changes,
+        // so a swap can never catch an image mid-load
+        const pair = (cx.venue_pair && cx.venue_pair.length >= 2) ? cx.venue_pair : null;
+        const len = pair ? pair.length : 0;
+        const i = pair ? ((st.venueIdx || 0) % len) : 0;
+        const prev = pair ? ((i - 1 + len) % len) : 0;
+        const list = pair ? [{ u: pair[i].u, pair: pair }] : vImgs.filter(v => v.u !== cx.hero);
+        const base = { position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%', objectFit: 'cover' };
+        // the outgoing frame stays fully opaque underneath while the incoming one fades in over
+        // it — fading both at once would let the light panel behind them wash through mid-swap
+        const layerStyle = n => {
+          if (n === i) return (st.venueFade !== false)
+            ? { opacity: 1, transition: 'opacity 1.1s ease', zIndex: 2 }
+            : { opacity: 0, transition: 'none', zIndex: 2 };
+          if (n === prev) return { opacity: 1, zIndex: 1 };
+          return { opacity: 0, zIndex: 0 };
+        };
+        return list.map(v => ({
+          layers: (v.pair || [{ u: v.u }]).map((p, n) => ({
+            imgRef: mkRef(p.u, this.markBroken, true),
+            style: Object.assign({}, base, v.pair ? layerStyle(n) : { position: 'relative' })
+          })),
+          hasCaption: !!v.pair,
+          caption: v.pair ? v.pair[i].c : '',
+          open: () => this.setState({ venue: v.pair ? v.pair[i].u : v.u, venueCap: v.pair ? v.pair[i].c : '' }),
+          wrapStyle: { cursor: 'pointer', width: '100%' },
+          boxStyle: { position: 'relative', width: '100%', height: st.broken[v.u] ? 0 : 400, overflow: 'hidden', background: '#f6f5f2' }
+        }));
+      })(),
+      vVenue: view === 'exhibit' && !!st.venue,
+      venueCaption: st.venueCap || venueCap,
+      venueImgRef: el => { if (el && st.venue) { el.style.display = ''; el.onerror = () => { el.style.display = 'none'; }; if (el.src !== st.venue) el.src = st.venue; } },
+      closeVenue: () => this.setState({ venue: '', venueCap: '' }),
+      exHasGalFilter: hasInstalls && hasWorks,
+      exGalTabs: ['Works', 'Installs'].map(label => ({
+        label: label,
+        pick: () => {
+          if ((st.exGal || 'Works') === label) return;
+          this._enteredAt = Date.now();
+          this.setState({ exGal: label, exFullU: '', exFullFor: '' }, () => this.scrollTo(this._viewsRow, 26));
+        },
+        style: {
+          background: 'none', border: 'none', padding: '0 0 3px', borderRadius: 0, cursor: 'pointer',
+          fontFamily: 'Raleway,Helvetica,Arial,sans-serif', fontSize: 11, fontWeight: 500,
+          letterSpacing: '.2em', textTransform: 'uppercase',
+          color: galFilter === label ? '#1a1a1c' : '#9c9ca0',
+          borderBottom: galFilter === label ? '1px solid rgba(20,20,20,.45)' : '1px solid transparent'
+        }
+      })),
+      exGridMode: (st.exMode || 'full') === 'grid',
+      exFullMode: st.exMode === 'full',
+      setGridMode: () => this.setViewMode('grid'),
+      setFullMode: () => this.setViewMode('full'),
+      gridBtnStyle: { cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 3, color: (st.exMode === 'full' ? '#c4c4c6' : '#1a1a1c') },
+      fullBtnStyle: { cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 3, color: (st.exMode === 'full' ? '#1a1a1c' : '#c4c4c6') },
+      fullImgRef: el => {
+        const u = (lbAll[fullI] || {}).u;
+        if (!el || !u) return;
+        el.onerror = () => { el.style.visibility = 'hidden'; this.markBroken(u); };
+        el.onload = () => { el.style.visibility = ''; };
+        if (el.getAttribute('src') !== u) { el.style.visibility = ''; el.src = u; }
+      },
+      fullImgStyle: Object.assign({ display: 'block', maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain', flex: '0 1 auto', minHeight: 0 },
+        this.shadowShow(st.exhibit) ? { boxShadow: '0 14px 34px rgba(20,20,20,.08), 0 2px 6px rgba(20,20,20,.05)' } : null),
+      fullMissing: !!st.broken[(lbAll[fullI] || {}).u],
+      fullCaption: (lbAll[fullI] || {}).c || '',
+      fullCount: lbAll.length ? (fullI + 1) + ' / ' + lbAll.length : '',
+      prevFull: e => { if (e && e.stopPropagation) e.stopPropagation(); this.stepFull(-1); },
+      nextFull: e => { if (e && e.stopPropagation) e.stopPropagation(); this.stepFull(1); },
+      exColumns: (() => {
+        // dimensions recorded in the data need no network round trip
+        restItems.forEach(g => { if (g.w && g.h && !this._ratios[g.u]) this._ratios[g.u] = g.h / g.w; });
+        const items = restItems.map(g => ({
+          caption: g.c || '', artist: artistOf(g.c), imgRef: mkRef(g.u, this.markBroken),
+          missing: !!st.broken[g.u],
+          boxStyle: Object.assign({ position: 'relative', background: '#f6f5f2', minHeight: st.broken[g.u] ? 200 : 0 },
+            this.shadowShow(st.exhibit) ? { boxShadow: '0 14px 34px rgba(20,20,20,.08), 0 2px 6px rgba(20,20,20,.05)' } : null),
+          open: this.openFullAt(g.u),
+          _u: g.u
+        }));
+        const n = st.wide ? 3 : 2;
+        const key = st.exhibit + '|' + (galFilter || 'all') + '|' + n + '|' + items.length;
+        // an assignment, once made, is never recomputed — a late-loading image must not
+        // reshuffle tiles the viewer is already looking at
+        if (this._packKey === key && this._pack) {
+          return this._pack.map((idx, i) => ({ items: idx.map(k => items[k]), i }));
+        }
+        const known = items.every(it => this._ratios[it._u]);
+        if (!known) {
+          // measure off-DOM so lazy-loaded tiles below the fold don't gate the layout
+          items.forEach(it => {
+            if (this._ratios[it._u] || this._probing[it._u]) return;
+            this._probing[it._u] = 1;
+            const settle = () => {
+              clearTimeout(this._ratioTick);
+              this._ratioTick = setTimeout(() => this.forceUpdate(), 90);
+            };
+            const probe = new Image();
+            probe.onload = () => {
+              this._ratios[it._u] = probe.naturalHeight / (probe.naturalWidth || 1);
+              settle();
+            };
+            // a 404 still has to release the pack, or the grid never leaves fallback order
+            probe.onerror = () => { this._ratios[it._u] = 1; settle(); };
+            probe.src = it._u;
+          });
+          // hold the plain order until every ratio is in, then pack once
+          const cols = []; for (let k = 0; k < n; k++) cols.push([]);
+          items.forEach((it, i) => cols[i % n].push(it));
+          return cols.map((items, i) => ({ items, i }));
+        }
+        // the run reads ACROSS: tile 1 opens the top row, tile 2 sits beside it. within a row
+        // the next tile goes to whichever column is currently shortest, so the columns still
+        // bottom out evenly instead of laddering
+        const idx = []; const heights = [];
+        for (let k = 0; k < n; k++) { idx.push([]); heights.push(0); }
+        items.forEach((it, i) => {
+          let col;
+          if (i < n) col = i; // seed the top row in list order
+          else {
+            col = 0;
+            for (let k = 1; k < n; k++) if (heights[k] < heights[col] - 0.001) col = k;
+          }
+          idx[col].push(i);
+          heights[col] += this._ratios[it._u] + 0.12; // caption line
+        });
+        this._packKey = key; this._pack = idx;
+        return idx.map((list, i) => ({ items: list.map(k => items[k]), i }));
+      })(),
+      exGalleryCount: lbAll.length
+    };
+  }
+}
+
+</script>
+</body>
+</html>
